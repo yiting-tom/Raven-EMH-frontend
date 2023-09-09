@@ -1,32 +1,17 @@
-/*!
+import React from 'react';
+import { Dropdown, DropdownToggle, Badge } from 'reactstrap';
 
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
-import React from "react";
+import { backgroundColors } from 'contexts/BackgroundColorContext';
+import { ThemeContext, themes } from 'contexts/ThemeContext';
 
 // reactstrap components
-import { Button, Dropdown, DropdownToggle, Badge } from "reactstrap";
-import { ThemeContext, themes } from "contexts/ThemeContext";
-import { backgroundColors } from "contexts/BackgroundColorContext";
 
 function FixedPlugin(props) {
   const [dropDownIsOpen, setdropDownIsOpen] = React.useState(false);
   const handleClick = () => {
     setdropDownIsOpen(!dropDownIsOpen);
   };
+
   return (
     <div className="fixed-plugin">
       <Dropdown isOpen={dropDownIsOpen} toggle={handleClick}>
@@ -40,51 +25,51 @@ function FixedPlugin(props) {
               <Badge
                 color="primary"
                 className={
-                  props.bgColor === backgroundColors.primary ? "active" : ""
+                  props.bgColor === backgroundColors.primary ? 'active' : ''
                 }
                 onClick={() => {
                   props.handleBgClick(backgroundColors.primary);
                 }}
-              />{" "}
+              />{' '}
               <Badge
                 color="info"
                 className={
-                  props.bgColor === backgroundColors.blue ? "active" : ""
+                  props.bgColor === backgroundColors.blue ? 'active' : ''
                 }
                 onClick={() => {
                   props.handleBgClick(backgroundColors.blue);
                 }}
-              />{" "}
+              />{' '}
               <Badge
                 color="success"
                 className={
-                  props.bgColor === backgroundColors.green ? "active" : ""
+                  props.bgColor === backgroundColors.green ? 'active' : ''
                 }
                 onClick={() => {
                   props.handleBgClick(backgroundColors.green);
                 }}
-              />{" "}
+              />{' '}
             </div>
           </li>
           <li className="adjustments-line text-center color-change">
             <ThemeContext.Consumer>
               {({ changeTheme }) => (
                 <>
-                  <span className="color-label">LIGHT MODE</span>{" "}
+                  <span className="color-label">LIGHT MODE</span>{' '}
                   <Badge
                     className="light-badge mr-2"
                     onClick={() => changeTheme(themes.light)}
-                  />{" "}
+                  />{' '}
                   <Badge
                     className="dark-badge ml-2"
                     onClick={() => changeTheme(themes.dark)}
-                  />{" "}
-                  <span className="color-label">DARK MODE</span>{" "}
+                  />{' '}
+                  <span className="color-label">DARK MODE</span>{' '}
                 </>
               )}
             </ThemeContext.Consumer>
           </li>
-          <li className="button-container">
+          {/* <li className="button-container">
             <Button
               href="https://www.creative-tim.com/product/black-dashboard-react"
               color="primary"
@@ -102,8 +87,8 @@ function FixedPlugin(props) {
             >
               Documentation
             </Button>
-          </li>
-          <li className="header-title">Want more components?</li>
+          </li> */}
+          {/* <li className="header-title">Want more components?</li>
           <li className="button-container">
             <Button
               href="https://www.creative-tim.com/product/black-dashboard-pro-react"
@@ -114,7 +99,7 @@ function FixedPlugin(props) {
             >
               Get pro version
             </Button>
-          </li>
+          </li> */}
         </ul>
       </Dropdown>
     </div>

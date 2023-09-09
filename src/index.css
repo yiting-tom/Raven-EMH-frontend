@@ -1,0 +1,18 @@
+/* For Webkit browsers like Chrome, Safari */
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+body {
+  scrollbar-width: none;
+  /* Firefox 64+ */
+  overflow: -moz-scrollbars-none;
+  /* older Firefox versions */
+}
+
+/* For IE and Edge */
+body {
+  -ms-overflow-style: none;
+  /* IE 10+ */
+}

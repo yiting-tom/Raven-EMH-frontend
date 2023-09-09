@@ -1,93 +1,86 @@
-/*!
+import React from 'react';
 
-=========================================================
-* Black Dashboard React v1.2.2
-=========================================================
+import AuthPage from 'pages/AuthPage';
+import DashboardPage from 'pages/DashboardPage';
+import EMHRobotPage from 'pages/EMHRobotPage';
+import FeedbackPage from 'pages/FeedbackPage';
+import RobotProfilePage from 'pages/RobotProfilePage';
+// import Map from "pages/Map.js";
+// import Notifications from "pages/Notifications.js";
+// import Rtl from "pages/Rtl.js";
 
-* Product Page: https://www.creative-tim.com/product/black-dashboard-react
-* Copyright 2023 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/black-dashboard-react/blob/master/LICENSE.md)
+const routesTable = {
+  feedback: {
+    path: '/feedback',
+    name: 'Feedbacks',
+    icon: 'tim-icons icon-notes',
+    component: <FeedbackPage />,
+  },
+  emhRobot: {
+    path: '/emh-robot',
+    name: 'EMH Robot',
+    icon: 'tim-icons icon-atom',
+    component: <EMHRobotPage />,
+  },
+  robotProfile: {
+    path: '/robot-profile',
+    name: 'EMH Robot Profile',
+    icon: 'tim-icons icon-single-02',
+    component: <RobotProfilePage />,
+  },
+  logIn: {
+    path: '/auth',
+    name: 'Log In / Sign Up',
+    icon: 'tim-icons icon-align-center',
+    component: <AuthPage />,
+  },
+  dashboard: {
+    path: '/dashboard',
+    name: 'Dashboard',
+    icon: 'tim-icons icon-chart-pie-36',
+    component: <DashboardPage />,
+  },
+  // map: {
+  //   path: '/map',
+  //   name: 'Map',
+  //   icon: 'tim-icons icon-pin',
+  //   component: <MapPage />,
+  // },
+  // notifications: {
+  //   path: '/notifications',
+  //   name: 'Notifications',
+  //   icon: 'tim-icons icon-bell-55',
+  //   component: <NotificationsPage />,
+  // },
+};
 
-* Coded by Creative Tim
+const getRoutes = (layout, routeNames) => {
+  const routeList = [];
+  for (let i = 0; i < routeNames.length; i += 1) {
+    routeList.push({
+      ...routesTable[routeNames[i]],
+      layout: layout,
+    });
+  }
+  return routeList;
+};
 
-=========================================================
+export const doctorRoutes = getRoutes('/doctor', [
+  'emhRobot',
+  'robotProfile',
+  'feedback',
+]);
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+export const patientRoutes = getRoutes('/patient', [
+  'emhRobot',
+  'robotProfile',
+]);
 
-*/
-import Dashboard from "views/Dashboard.js";
-import Icons from "views/Icons.js";
-import Map from "views/Map.js";
-import Notifications from "views/Notifications.js";
-import Rtl from "views/Rtl.js";
-import TableList from "views/TableList.js";
-import Typography from "views/Typography.js";
-import UserProfile from "views/UserProfile.js";
-
-var routes = [
-  {
-    path: "/dashboard",
-    name: "Dashboard",
-    rtlName: "لوحة القيادة",
-    icon: "tim-icons icon-chart-pie-36",
-    component: <Dashboard />,
-    layout: "/admin",
-  },
-  {
-    path: "/icons",
-    name: "Icons",
-    rtlName: "الرموز",
-    icon: "tim-icons icon-atom",
-    component: <Icons />,
-    layout: "/admin",
-  },
-  {
-    path: "/map",
-    name: "Map",
-    rtlName: "خرائط",
-    icon: "tim-icons icon-pin",
-    component: <Map />,
-    layout: "/admin",
-  },
-  {
-    path: "/notifications",
-    name: "Notifications",
-    rtlName: "إخطارات",
-    icon: "tim-icons icon-bell-55",
-    component: <Notifications />,
-    layout: "/admin",
-  },
-  {
-    path: "/user-profile",
-    name: "User Profile",
-    rtlName: "ملف تعريفي للمستخدم",
-    icon: "tim-icons icon-single-02",
-    component: <UserProfile />,
-    layout: "/admin",
-  },
-  {
-    path: "/tables",
-    name: "Table List",
-    rtlName: "قائمة الجدول",
-    icon: "tim-icons icon-puzzle-10",
-    component: <TableList />,
-    layout: "/admin",
-  },
-  {
-    path: "/typography",
-    name: "Typography",
-    rtlName: "طباعة",
-    icon: "tim-icons icon-align-center",
-    component: <Typography />,
-    layout: "/admin",
-  },
-  {
-    path: "/rtl-support",
-    name: "RTL Support",
-    rtlName: "ار تي ال",
-    icon: "tim-icons icon-world",
-    component: <Rtl />,
-    layout: "/rtl",
-  },
-];
-export default routes;
+export const adminRoutes = getRoutes('/admin', [
+  'dashboard',
+  'emhRobot',
+  'robotProfile',
+  'feedback',
+  // 'map',
+  // 'notifications',
+]);
