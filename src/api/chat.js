@@ -61,7 +61,7 @@ export async function sendChatMessage(userId, username, message, parentId) {
           parent_id: parentId,
         },
         format_dict: {
-          model_name: 'Eric',
+          model_name: 'Alpha Noble',
           model_personality:
             'practical, sincere, talkative, thoughtful and considerate',
         },

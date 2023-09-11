@@ -49,6 +49,10 @@ export const AuthProvider = ({ children }) => {
         const userDoc = await db.collection('users').doc(user.uid).get();
         if (userDoc.exists) {
           setUserRole(userDoc.data().role);
+        } else {
+          // If the user doesn't exist in Firestore, create a new user and set role to PATIENT
+          await db.collection('users').doc(user.uid).set({ role: 'PATIENT' });
+          setUserRole('PATIENT');
         }
       } else {
         setUserRole(null); // Ensure user role is null if no user
