@@ -24,7 +24,7 @@ export async function fetchAllChatsByUserId(userId) {
   console.debug('Fetching all chats for user:', userId);
   try {
     // Fetch chat data by user ID from the server
-    const res = await fetch(`http://localhost:8000/chat/user/${userId}`);
+    const res = await fetch(`${baseUrl}/chat/user/${userId}`);
 
     // Parse the returned JSON data
     const data = await res.json();
