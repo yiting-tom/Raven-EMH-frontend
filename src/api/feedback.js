@@ -17,6 +17,7 @@ export async function fetchFeedbacksByUserId(userId) {
     return data;
   } catch (err) {
     console.error('Error fetching feedbacks for user:', userId, err);
+    return [];
   }
 }
 

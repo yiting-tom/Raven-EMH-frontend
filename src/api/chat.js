@@ -23,6 +23,7 @@ import { baseUrl } from './base';
 export async function fetchAllChatsByUserId(userId) {
   console.debug('Fetching all chats for user:', userId);
   try {
+    console.log(`fetching ${baseUrl}/chat/user/${userId}`);
     // Fetch chat data by user ID from the server
     const res = await fetch(`${baseUrl}/chat/user/${userId}`);
 
@@ -34,6 +35,7 @@ export async function fetchAllChatsByUserId(userId) {
   } catch (err) {
     // Log and re-throw the error to be handled by the caller
     console.error('Error fetching chats for user:', userId, err);
+    return [];
   }
 }
 

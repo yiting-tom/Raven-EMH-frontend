@@ -5,7 +5,7 @@ import { AuthContext } from 'contexts/AuthContext';
 
 function ForbiddenPage() {
   const navigate = useNavigate();
-  const { currentUser, userRole } = useContext(AuthContext);
+  const { userRole } = useContext(AuthContext);
   const waitingTime = 3;
   const [timer, setTimer] = useState(waitingTime);
 
