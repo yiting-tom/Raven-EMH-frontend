@@ -67,6 +67,9 @@ const MessageSender = ({
   handleListening,
 }) => {
   const userInputAreaRef = React.useRef(null);
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) handleSubmit(e);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,6 +95,7 @@ const MessageSender = ({
               type="textarea"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
           </Col>
           <ButtonCol md="2" xs="6" className="button-col">
