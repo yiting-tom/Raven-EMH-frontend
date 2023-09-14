@@ -49,7 +49,7 @@ const SpeechRecognizer = ({
       className="send-button"
       disabled={status === 'sending' || playerState === 'playing'}
       onClick={() => {
-        handleListening(!listening);
+        if (browserSupportsSpeechRecognition) handleListening(!listening);
         setStart(true);
       }}
     >

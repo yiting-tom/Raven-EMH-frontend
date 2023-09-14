@@ -146,12 +146,17 @@ function EMHRobotPage() {
 
   // If not listening, set status to 'idle'
   useEffect(() => {
-    if (!listening) setStatus('idle');
+    if (browserSupportsSpeechRecognition && !listening) setStatus('idle');
   }, [listening]);
 
   const afterRecognition = async () => {
     // keep listening
-    if (message.length < 4 && prevStatus === 'listening' && status === 'idle') {
+    if (
+      browserSupportsSpeechRecognition &&
+      message.length < 4 &&
+      prevStatus === 'listening' &&
+      status === 'idle'
+    ) {
       handleListening(true);
       setStatus('listening');
       setPlayerState('paused');
@@ -159,6 +164,7 @@ function EMHRobotPage() {
     }
     // send message to backend
     if (
+      browserSupportsSpeechRecognition &&
       message.length >= 2 &&
       prevStatus === 'listening' &&
       status === 'idle'
@@ -182,7 +188,12 @@ function EMHRobotPage() {
   }, [listening]);
 
   useEffect(() => {
-    if (start && playerState === 'ended' && status === 'idle') {
+    if (
+      browserSupportsSpeechRecognition &&
+      start &&
+      playerState === 'ended' &&
+      status === 'idle'
+    ) {
       handleListening(true);
     }
   }, [playerState]);
