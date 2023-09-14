@@ -75,6 +75,7 @@ const MessageSender = ({
     setPlayerState('playing');
     setStatus('idle');
     setStart(true);
+    setMessage('');
   };
 
   useHotkeys('ctrl+enter', handleSubmit, [message]);
