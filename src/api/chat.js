@@ -35,7 +35,7 @@ export async function sendChatMessage(userId, username, message, parentId) {
       {
         chat: {
           user_id: userId,
-          username: username,
+          username: username ? username : 'Anonymous',
           request: message,
           parent_id: parentId,
         },
