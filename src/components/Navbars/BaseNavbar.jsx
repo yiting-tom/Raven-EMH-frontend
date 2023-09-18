@@ -109,7 +109,7 @@ function BaseNavbar(props) {
                   onClick={(e) => e.preventDefault()}
                 >
                   <div className="photo">
-                    <img alt="..." src={userAvatar} />
+                    <img alt="..." src={currentUser.photoUrl ? currentUser.photoUrl : `https://avatar.oxro.io/avatar.svg?name=${currentUser.displayName.replace(/ /g, "%20")}&bold=true`} />
                   </div>
                   <b className="caret d-none d-lg-block d-xl-block" />
                   <p className="d-lg-none">{currentUser.displayName}</p>
