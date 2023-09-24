@@ -25,6 +25,7 @@
     "react-bootstrap-icons": "^1.10.3",
     "react-chartjs-2": "3.3.0",
     "react-dom": ">=16.8.0",
+    "react-easy-crop": "^5.0.2",
     "react-error-overlay": "6.0.9",
     "react-fast-marquee": "^1.6.0",
     "react-hotkeys-hook": "^4.4.1",
