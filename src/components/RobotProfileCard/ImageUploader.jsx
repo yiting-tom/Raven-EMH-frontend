@@ -5,8 +5,8 @@ import { Button, Modal, ModalBody } from 'reactstrap';
 import defaultAvatar from '../../assets/img/default-avatar.png';
 import getCroppedImg from '../../utils/cropImage';
 
-function ImageUploader({ imageFile, setImageFile }) {
-  const [previewURL, setPreviewURL] = useState(null);
+function ImageUploader({ imageFile, setImageFile, defaultPreviewURL }) {
+  const [previewURL, setPreviewURL] = useState(defaultPreviewURL);
   const [croppedImageURL, setCroppedImageURL] = useState(null);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -23,9 +23,14 @@ function ImageUploader({ imageFile, setImageFile }) {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setImageFile(file);
-    setPreviewURL(URL.createObjectURL(file));
-    toggleModal();
+    try {
+      const url = URL.createObjectURL(file);
+      setImageFile(file);
+      setPreviewURL(url);
+      toggleModal();
+    } catch (error) {
+      return;
+    }
   };
 
   const onCropComplete = (_, croppedAreaPixels) => {
@@ -51,11 +56,11 @@ function ImageUploader({ imageFile, setImageFile }) {
   return (
     <div>
       <img
-        src={croppedImageURL || defaultAvatar}
+        src={croppedImageURL || previewURL || defaultAvatar}
         alt="User"
         className="avatar"
         onClick={handleImageClick}
-        style={{ cursor: 'pointer', borderRadius: '50%' }}
+        style={{ cursor: 'pointer', borderRadius: '50%', margin: 0 }}
       />
       <input
         type="file"
