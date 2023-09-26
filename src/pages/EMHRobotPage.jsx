@@ -269,6 +269,7 @@ function EMHRobotPage() {
               <div className="block block-four" />
             </div>
             <VideoPlayer
+              imageURL={robotProfiles[selectedRobotIdx].imageURL}
               start={start}
               setStart={setStart}
               videoUrl={videoUrl}

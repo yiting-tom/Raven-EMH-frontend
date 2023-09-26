@@ -11,7 +11,6 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Button, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import Avatar from 'assets/img/avatar.png';
 import { useMediaQuery } from 'utils/animation';
 
 const VideoPlayerContainer = styled.div`
@@ -44,6 +43,7 @@ const VideoPlayer = ({
   isFullscreen,
   setIsFullscreen,
   setToggle,
+  imageURL,
 }) => {
   const playerRef = React.useRef(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -125,7 +125,7 @@ const VideoPlayer = ({
       <VideoPlayerContainer>
         {videoUrl === null ? (
           <animated.img
-            src={Avatar}
+            src={imageURL}
             style={avatarSpring}
             onClick={() => setToggle(true)}
           />
