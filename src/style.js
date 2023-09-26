@@ -1,3 +1,5 @@
+import { keyframes } from 'styled-components';
+
 const breakpoints = {
   xs: '320px',
   sm: '640px',
@@ -47,3 +49,15 @@ export const color = {
   infoA: (opacity = 1) => `rgba(29, 140, 248, ${opacity})`,
   secondaryA: (opacity = 1) => `rgba(116, 123, 255, ${opacity})`,
 };
+
+export const createJellyAnimation = (finalScale) => keyframes`
+  5% {
+    transform: scale(1.2, 0.9);
+  }
+  10% {
+    transform: scale(0.9, 1.2) translate(0, -4px);
+  }
+  15% {
+    transform: scale(${finalScale});
+  }
+`;
