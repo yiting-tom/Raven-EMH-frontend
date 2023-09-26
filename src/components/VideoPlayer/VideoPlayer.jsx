@@ -9,6 +9,7 @@ import {
   Repeat,
 } from 'react-bootstrap-icons';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import { Button, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
@@ -45,13 +46,14 @@ const VideoPlayer = ({
   setPlayerState,
   isFullscreen,
   setIsFullscreen,
+  setToggle,
 }) => {
   const playerRef = React.useRef(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const avatarSpring = useSpring({
     height: !isFullscreen ? '216px' : isMobile ? '400px' : '600px',
     width: !isFullscreen ? '220px' : isMobile ? '410px' : '600px',
-    marginTop: isFullscreen ? '2em' : '0em',
+    cursor: 'pointer',
     borderRadius: '1em',
     overflow: 'hidden',
   });
@@ -125,9 +127,13 @@ const VideoPlayer = ({
     <>
       <VideoPlayerContainer>
         {videoUrl === null ? (
-          <animated.img src={Avatar} style={avatarSpring} />
+          <animated.img
+            src={Avatar}
+            style={avatarSpring}
+            onClick={() => setToggle(true)}
+          />
         ) : (
-          <animated.div style={avatarSpring}>
+          <animated.div style={avatarSpring} onClick={() => setToggle(true)}>
             <video
               onEnded={() => setPlayerState('ended')}
               autoPlay={start}

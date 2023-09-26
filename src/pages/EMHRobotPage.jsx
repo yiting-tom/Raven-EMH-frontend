@@ -6,24 +6,43 @@
  */
 
 import { useSpring, animated } from '@react-spring/web';
+import { Carousel } from '@trendyol-js/react-carousel';
 import React, { useEffect, useState, useContext } from 'react';
+import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import SpeechRecognition, {
   useSpeechRecognition,
 } from 'react-speech-recognition';
 import { BarLoader } from 'react-spinners';
-import { Card } from 'reactstrap';
+import { Button, Card, Row, Col, Modal } from 'reactstrap';
 import { styled } from 'styled-components';
 
 import { sendChatMessage, fetchAllChatsByUserId } from 'api/chat';
 import ChatHistory from 'components/ChatHistory/ChatHistory';
 import MessageSender from 'components/MessageSender/MessageSender';
-import VideoPlayer from 'components/VideoPlayer/VideoPlayer';
 import { usePrevious } from 'hooks/usePrevious';
 import { color } from 'style';
 import { useMediaQuery } from 'utils/animation';
 import { base64ToBlobUrl } from 'utils/converter';
 
+import { getRobotProfiles } from '../api/robotProfile';
+import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobotProfileCard';
+import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import { AuthContext } from '../contexts/AuthContext';
+
+const CarouselModal = styled(Modal)`
+  border-radius: 1em;
+  max-width: 100vw;
+  max-width: 768px;
+  width: 100vw;
+  box-shadow: none;
+  .modal-content {
+    @media (min-width: 992px) {
+      left: 16.5%;
+    }
+    background-color: transparent;
+    border-radius: 1em;
+  }
+`;
 
 const EMHRobotContainer = styled.div`
   margin: 0 auto;
@@ -52,6 +71,8 @@ function EMHRobotPage() {
   const [chats, setChats] = useState([]);
   const [videoUrl, setVideoUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const [robotProfiles, setRobotProfiles] = useState([]);
+  const [selectedRobotIdx, setSelectedRobotIdx] = useState(0);
 
   // State for message sender & speech recognizer
   const [start, setStart] = useState(false);
@@ -62,7 +83,6 @@ function EMHRobotPage() {
 
   // State for video player
   const [playerState, setPlayerState] = useState('idle'); // idle, playing, paused, ended
-  const prevPlayerState = usePrevious(playerState);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // State for EMHRobot
@@ -78,6 +98,16 @@ function EMHRobotPage() {
     margin: isFullscreen ? '0' : '1em auto',
   });
   const { currentUser } = useContext(AuthContext);
+  const [toggle, setToggle] = useState(false);
+
+  useEffect(() => {
+    const fetchAllRobotsProfiles = async () => {
+      const data = await getRobotProfiles();
+      setRobotProfiles(data);
+    };
+
+    fetchAllRobotsProfiles();
+  }, []);
 
   // Handler
   // Handler for MessageSender.SpeechRecognizer
@@ -215,6 +245,7 @@ function EMHRobotPage() {
           setPlayerState={setPlayerState}
           isFullscreen={isFullscreen}
           setIsFullscreen={setIsFullscreen}
+          setToggle={setToggle}
         />
       </AvatarContainer>
 
@@ -255,6 +286,53 @@ function EMHRobotPage() {
           handleListening={handleListening}
         />
       </MessageSenderContainer>
+      <CarouselModal isOpen={toggle} toggle={() => setToggle(!toggle)}>
+        <div
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '1em' }}
+        >
+          <h1
+            style={{
+              textAlign: 'center',
+              paddingTop: '0.6em',
+              marginBottom: '-0.5em',
+            }}
+          >
+            Choose your EMH Robot
+          </h1>
+          <Carousel
+            dynamic={true}
+            show={3}
+            slide={1}
+            swiping={true}
+            rightArrow={
+              <BiRightArrow
+                size="2em"
+                type="button"
+                style={{ height: '100%', margin: '0 1em' }}
+              />
+            }
+            leftArrow={
+              <BiLeftArrow
+                size="2em"
+                type="button"
+                style={{ height: '100%', margin: '0 1em' }}
+              />
+            }
+          >
+            {robotProfiles.length > 0 &&
+              robotProfiles.map((robot, idx) => (
+                <DisplayRobotProfileCard
+                  onClick={() => {
+                    setSelectedRobotIdx(idx);
+                  }}
+                  {...robot}
+                  key={robot.name}
+                  selected={idx === selectedRobotIdx}
+                />
+              ))}
+          </Carousel>
+        </div>
+      </CarouselModal>
     </EMHRobotContainer>
   );
 }
