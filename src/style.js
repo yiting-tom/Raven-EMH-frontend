@@ -51,13 +51,13 @@ export const color = {
 };
 
 export const createJellyAnimation = (finalScale) => keyframes`
-  5% {
+  25% {
     transform: scale(1.2, 0.9);
   }
-  10% {
+  60% {
     transform: scale(0.9, 1.2) translate(0, -4px);
   }
-  15% {
+  75% {
     transform: scale(${finalScale});
   }
 `;

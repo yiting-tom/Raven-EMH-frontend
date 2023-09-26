@@ -19,6 +19,7 @@ export default function RobotProfileCard({
   personality,
   extra,
   options,
+  refetchRobotsProfiles,
 }) {
   const [toggle, setToggle] = useState(false);
 
@@ -65,6 +66,7 @@ export default function RobotProfileCard({
         </CardBody>
       </ProfileCard>
       <RobotProfileCreationCard
+        refetchRobotsProfiles={refetchRobotsProfiles}
         toggle={toggle}
         setToggle={setToggle}
         defaultExtra={extra}

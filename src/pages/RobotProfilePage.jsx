@@ -40,7 +40,11 @@ function RobotProfilePage() {
       <Row>
         {emhRobots.length > 0 &&
           emhRobots.map((robot) => (
-            <RobotProfileCard {...robot} key={robot.name} />
+            <RobotProfileCard
+              {...robot}
+              key={robot.name}
+              refetchRobotsProfiles={fetchRobotsProfiles}
+            />
           ))}
 
         <Col md="6" lg="4">
@@ -53,6 +57,7 @@ function RobotProfilePage() {
             </AddRobotButton>
           </ProfileCard>
           <RobotProfileCreationCard
+            refetchRobotsProfiles={fetchRobotsProfiles}
             toggle={toggle}
             setToggle={setToggle}
             defaultExtra={''}
@@ -61,7 +66,6 @@ function RobotProfilePage() {
             defaultOptions={[]}
             defaultPersonality={''}
             defaultStatus={'CREATE'}
-            refetchRobotsProfiles={fetchRobotsProfiles}
           />
         </Col>
       </Row>

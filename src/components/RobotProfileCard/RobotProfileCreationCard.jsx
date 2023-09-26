@@ -193,7 +193,7 @@ export default function RobotProfileCreationCard({
   return (
     <CreaterModal isOpen={toggle} toggle={() => setToggle(!toggle)}>
       <Form>
-        <ProfileCreaterCard className="card-user" style={{ heght: '90vh' }}>
+        <ProfileCreaterCard className="card-user">
           <CardBody>
             <div className="author">
               <div className="block block-one" />
@@ -212,6 +212,7 @@ export default function RobotProfileCreationCard({
                   <Col>
                     <TextareaLabel>Name</TextareaLabel>
                     <NameInput
+                      disabled={defaultStatus === 'UPDATE'}
                       value={name}
                       placeholder="Robot Name"
                       onChange={(e) => setName(e.target.value)}
@@ -275,7 +276,7 @@ export default function RobotProfileCreationCard({
               </FormGroup>
             </div>
             <Row>
-              {defaultStatus === 'UPDATE' && (
+              {defaultStatus === 'UPDATE' && uploadStatus === 'UPDATE' && (
                 <Col style={{ padding: '0 0 0 1em' }}>
                   <Button
                     onClick={handleDelete}
