@@ -46,6 +46,7 @@ const ButtonCol = styled(Col)`
 `;
 
 const MessageSender = ({
+  isFetchingChats,
   start,
   setStart,
   status,
@@ -121,7 +122,7 @@ const MessageSender = ({
           <ButtonCol md="2" xs="6" className="button-col">
             <SendButton
               className="send-button btn-primary"
-              disabled={status === 'sending'}
+              disabled={status === 'sending' || isFetchingChats}
               type="submit"
             >
               {status === 'sending' ? (

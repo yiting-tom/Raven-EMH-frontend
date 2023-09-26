@@ -16,15 +16,15 @@ import { BarLoader } from 'react-spinners';
 import { Card, Modal } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import { sendChatMessage, fetchAllChatsByUserId } from 'api/chat';
-import ChatHistory from 'components/ChatHistory/ChatHistory';
-import MessageSender from 'components/MessageSender/MessageSender';
 import { usePrevious } from 'hooks/usePrevious';
 import { color } from 'style';
 import { useMediaQuery } from 'utils/animation';
 import { base64ToBlobUrl } from 'utils/converter';
 
+import { sendChatMessage, fetchAllChatsByUserId } from '../api/chat';
 import { getRobotProfiles } from '../api/robotProfile';
+import ChatHistory from '../components/ChatHistory/ChatHistory';
+import MessageSender from '../components/MessageSender/MessageSender';
 import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobotProfileCard';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import { AuthContext } from '../contexts/AuthContext';
@@ -73,7 +73,8 @@ function EMHRobotPage() {
   const [message, setMessage] = useState('');
   const [robotProfiles, setRobotProfiles] = useState([]);
   const [selectedRobotIdx, setSelectedRobotIdx] = useState(0);
-  const [isFetchingData, setIsFetchingData] = useState(true);
+  const [isFetchingRobotsProfiles, setIsFetchingRobotsProfiles] =
+    useState(true);
 
   // State for message sender & speech recognizer
   const [start, setStart] = useState(false);
@@ -144,7 +145,7 @@ function EMHRobotPage() {
 
   useEffect(() => {
     if (robotProfiles.length > 0) {
-      setIsFetchingData(false);
+      setIsFetchingRobotsProfiles(false);
     }
   }, [robotProfiles]);
 
@@ -237,7 +238,7 @@ function EMHRobotPage() {
 
   return (
     <EMHRobotContainer className="content">
-      {isFetchingData ? (
+      {isFetchingRobotsProfiles ? (
         <div
           style={{
             display: 'flex',
@@ -298,6 +299,7 @@ function EMHRobotPage() {
 
           <MessageSenderContainer>
             <MessageSender
+              isFetchingChats={isFetchingChats}
               start={start}
               setStart={setStart}
               status={status}

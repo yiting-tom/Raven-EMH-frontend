@@ -14,7 +14,6 @@ export async function fetchAllChatsByUserId(userId) {
   } catch (err) {
     // Log and re-throw the error to be handled by the caller
     console.error('Error fetching chats for user:', userId, err);
-    return [];
   }
 }
 
