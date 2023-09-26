@@ -10,6 +10,10 @@ import {
   Modal,
   Row,
   Col,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownToggle,
 } from 'reactstrap';
 import { styled } from 'styled-components';
 
@@ -17,6 +21,16 @@ import ImageUploader from './ImageUploader';
 import RobotOptions from './RobotOptions';
 import { createRobotProfile, deleteRobotProfile } from '../../api/robotProfile';
 import { uploadImage } from '../../utils/storage';
+
+const voiceList = [
+  'Author (Neural)',
+  'Amy (Standard)',
+  'Amy (Neural)',
+  'Emma (Standard)',
+  'Emma (Neural)',
+  'Brian (Standard)',
+  'Brian (Neural)',
+];
 
 const CreaterModal = styled(Modal)`
   margin: auto;
@@ -37,7 +51,7 @@ const ProfileCreaterCard = styled(Card)`
 const NameInput = styled(Input)`
   margin: 0em auto;
   padding: 2px;
-  width: 50%;
+  width: 100%;
   text-align: center;
   font-weight: bold;
   font-size: 1em;
@@ -58,7 +72,8 @@ const TextareaInput = styled(Input)`
   width: 100%;
 `;
 
-function RobotProfileCreationCard({
+export default function RobotProfileCreationCard({
+  refetchRobotsProfiles,
   toggle,
   setToggle,
   defaultImageURL,
@@ -67,7 +82,6 @@ function RobotProfileCreationCard({
   defaultExtra,
   defaultOptions,
   defaultStatus,
-  refetchRobotsProfiles,
 }) {
   const [imageFile, setImageFile] = useState(null);
   const [name, setName] = useState(defaultName);
@@ -76,6 +90,15 @@ function RobotProfileCreationCard({
   const [selectedOptions, setSelectedOptions] = useState(defaultOptions);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState(defaultStatus);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState(voiceList[0]);
+
+  const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
+
+  const handleSelectVoice = (voice) => {
+    setSelectedVoice(voice);
+  };
+
   const resetAllStatus = () => {
     setImageFile(null);
     setName('');
@@ -115,7 +138,7 @@ function RobotProfileCreationCard({
     }
 
     let imageURL = defaultImageURL;
-    if (defaultStatus === 'CREATE') {
+    if (imageFile) {
       try {
         setUploadStatus('Uploading image...');
         imageURL = await uploadImage(
@@ -185,12 +208,42 @@ function RobotProfileCreationCard({
               />
 
               <FormGroup>
-                <TextareaLabel>Name</TextareaLabel>
-                <NameInput
-                  value={name}
-                  placeholder="Robot Name"
-                  onChange={(e) => setName(e.target.value)}
-                />
+                <Row>
+                  <Col>
+                    <TextareaLabel>Name</TextareaLabel>
+                    <NameInput
+                      value={name}
+                      placeholder="Robot Name"
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  </Col>
+                  <Col>
+                    <TextareaLabel>Voice</TextareaLabel>
+                    <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
+                      <DropdownToggle
+                        style={{
+                          padding: '10px',
+                          margin: 'auto',
+                          width: '100%',
+                        }}
+                      >
+                        {selectedVoice}
+                      </DropdownToggle>
+                      <DropdownMenu
+                        style={{ width: '80%', margin: '0.5em 0 0 10%' }}
+                      >
+                        {voiceList.map((voice) => (
+                          <DropdownItem
+                            key={voice}
+                            onClick={() => handleSelectVoice(voice)}
+                          >
+                            {voice}
+                          </DropdownItem>
+                        ))}
+                      </DropdownMenu>
+                    </Dropdown>
+                  </Col>
+                </Row>
               </FormGroup>
 
               <FormGroup>
@@ -257,5 +310,3 @@ function RobotProfileCreationCard({
     </CreaterModal>
   );
 }
-
-export default RobotProfileCreationCard;
