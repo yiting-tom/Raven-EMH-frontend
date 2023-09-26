@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BiPlus } from 'react-icons/bi';
@@ -9,18 +8,10 @@ import { ScaleLoader } from 'react-spinners';
 import { SendButton } from 'components/MessageSender/MessageSender';
 
 const SpeechRecognizer = ({
-  start,
   setStart,
   status,
-  setStatus,
-  message,
   setMessage,
-  videoUrl,
-  setVideoUrl,
-  chats,
-  setChats,
   playerState,
-  setPlayerState,
   transcript,
   listening,
   browserSupportsSpeechRecognition,

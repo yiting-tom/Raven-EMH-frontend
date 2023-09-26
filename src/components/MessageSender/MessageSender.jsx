@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BiPlus, BiSend } from 'react-icons/bi';
 import { MdKeyboardCommandKey, MdKeyboardReturn } from 'react-icons/md';
@@ -54,7 +53,6 @@ const MessageSender = ({
   message,
   setMessage,
   sendMessageFn,
-  prevStatus,
   videoUrl,
   setVideoUrl,
   chats,

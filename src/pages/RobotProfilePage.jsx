@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BiUserPlus } from 'react-icons/bi';
-import { Row, Card, Button, Col, Modal } from 'reactstrap';
+import { Row, Card, Button, Col } from 'reactstrap';
 import { styled } from 'styled-components';
 
 import { getRobotProfiles } from '../api/robotProfile';

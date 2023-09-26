@@ -8,8 +8,9 @@ import RobotProfileCreationCard from './RobotProfileCreationCard';
 
 const ProfileCard = styled(Card)`
   border-radius: 1em;
-  height: 44vh;
-  margin: 1em 0;
+  min-height: 48vh;
+  height: 100%;
+  margin: 0;
 `;
 
 export default function RobotProfileCard({
@@ -22,7 +23,7 @@ export default function RobotProfileCard({
   const [toggle, setToggle] = useState(false);
 
   return (
-    <Col md="6" lg="4">
+    <Col md="6" lg="4" style={{ margin: '1em 0' }}>
       <ProfileCard className="card-user">
         <CardBody className="author">
           <div className="block block-one" />

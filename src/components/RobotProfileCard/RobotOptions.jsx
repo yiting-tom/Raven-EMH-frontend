@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BiSolidUserVoice, BiHistory } from 'react-icons/bi';
 import { BsPersonVideo } from 'react-icons/bs';
 import { FaBookMedical } from 'react-icons/fa';
@@ -59,10 +59,6 @@ export default function RobotOptions({ selectedOptions, setSelectedOptions }) {
       setSelectedOptions([...selectedOptions, option]);
     }
   };
-
-  useEffect(() => {
-    console.log(selectedOptions);
-  }, [selectedOptions]);
 
   return (
     <RobotOptionsContainer>

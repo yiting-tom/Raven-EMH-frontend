@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { animated, useSpring } from '@react-spring/web';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Fullscreen,
   FullscreenExit,
@@ -9,7 +8,6 @@ import {
   Repeat,
 } from 'react-bootstrap-icons';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
 import { Button, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
@@ -40,7 +38,6 @@ const ControlButton = styled(Button)`
  */
 const VideoPlayer = ({
   start,
-  setStart,
   videoUrl,
   playerState,
   setPlayerState,

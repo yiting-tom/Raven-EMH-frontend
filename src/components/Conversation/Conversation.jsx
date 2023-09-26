@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useSpring, animated } from '@react-spring/web';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -47,8 +46,6 @@ const AnnotationArea = styled.div`
 
 const Conversation = ({
   conversation,
-  submit,
-  setSubmit,
   submitMap,
   setSubmitMap,
   curIdx,
@@ -56,7 +53,7 @@ const Conversation = ({
   selfIdx,
   delay,
 }) => {
-  const { id, username, request, response, annotations } = conversation;
+  const { id, request, response, annotations } = conversation;
   const [score, setScore] = useState(
     annotations.length > 0 ? annotations[annotations.length - 1].score : 0,
   );

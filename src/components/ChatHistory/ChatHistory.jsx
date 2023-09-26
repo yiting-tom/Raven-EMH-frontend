@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { BsTrashFill } from 'react-icons/bs';
 import { Scrollbar } from 'react-scrollbars-custom';
@@ -19,7 +18,6 @@ const DefaultMessage = styled(Col)`
 const ChatHistory = ({ chats }) => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const scrollbarRef = React.useRef(null);
-  const scrollToBottom = () => scrollbarRef.current.scrollToBottom();
 
   return (
     <>

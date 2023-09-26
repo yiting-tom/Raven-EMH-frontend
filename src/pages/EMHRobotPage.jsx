@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * @file EMHRobots.tsx
  * @author Yi-Ting Li <yitingli.public@gmail.com>
@@ -13,7 +12,7 @@ import SpeechRecognition, {
   useSpeechRecognition,
 } from 'react-speech-recognition';
 import { BarLoader } from 'react-spinners';
-import { Button, Card, Row, Col, Modal } from 'reactstrap';
+import { Card, Modal } from 'reactstrap';
 import { styled } from 'styled-components';
 
 import { sendChatMessage, fetchAllChatsByUserId } from 'api/chat';
