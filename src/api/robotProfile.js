@@ -14,6 +14,7 @@ const robotProfilesCollectionRef = collection(db, 'robotProfiles');
 
 export async function createRobotProfile(profile) {
   const docRef = doc(robotProfilesCollectionRef, profile.name);
+  console.debug('Adding document with ID: ', profile.name);
   await setDoc(docRef, profile);
 }
 
@@ -21,7 +22,7 @@ export async function createRobotProfile(profile) {
 export async function getRobotProfiles() {
   const querySnapshot = await getDocs(robotProfilesCollectionRef);
   const results = querySnapshot.docs.map((doc) => doc.data());
-  console.log(results);
+  console.debug('All documents in the collection: ', results);
   return results;
 }
 
@@ -30,14 +31,16 @@ export async function getSpecificRobotProfile(specificId) {
   const specificRobotProfileRef = doc(robotProfilesCollectionRef, specificId);
   const docSnapshot = await getDoc(specificRobotProfileRef);
   if (docSnapshot.exists()) {
-    console.log('Document data:', docSnapshot.data());
+    console.debug('Document data:', docSnapshot.data());
+    return docSnapshot.data();
   } else {
-    console.log('No such document!');
+    console.error('No such document!');
   }
 }
 
 export async function updateRobotProfile(specificId, updatedContent) {
   const robotProfileRef = doc(robotProfilesCollectionRef, specificId);
+  console.debug('Updating document with ID: ', specificId);
   await updateDoc(robotProfileRef, {
     content: updatedContent,
   });
@@ -45,5 +48,6 @@ export async function updateRobotProfile(specificId, updatedContent) {
 
 export async function deleteRobotProfile(specificId) {
   const robotProfileRef = doc(robotProfilesCollectionRef, specificId);
+  console.debug('Deleting document with ID: ', specificId);
   await deleteDoc(robotProfileRef);
 }
