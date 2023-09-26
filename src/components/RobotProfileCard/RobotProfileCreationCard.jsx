@@ -8,12 +8,14 @@ import {
   Card,
   CardBody,
   Modal,
+  Row,
+  Col,
 } from 'reactstrap';
 import { styled } from 'styled-components';
 
 import ImageUploader from './ImageUploader';
 import RobotOptions from './RobotOptions';
-import { createRobotProfile } from '../../api/robotProfile';
+import { createRobotProfile, deleteRobotProfile } from '../../api/robotProfile';
 import { uploadImage } from '../../utils/storage';
 
 const CreaterModal = styled(Modal)`
@@ -65,6 +67,7 @@ function RobotProfileCreationCard({
   defaultExtra,
   defaultOptions,
   defaultStatus,
+  refetchRobotsProfiles,
 }) {
   const [imageFile, setImageFile] = useState(null);
   const [name, setName] = useState(defaultName);
@@ -73,6 +76,15 @@ function RobotProfileCreationCard({
   const [selectedOptions, setSelectedOptions] = useState(defaultOptions);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState(defaultStatus);
+  const resetAllStatus = () => {
+    setImageFile(null);
+    setName('');
+    setPersonality('');
+    setExtra('');
+    setSelectedOptions([]);
+    setUploadProgress(0);
+    setUploadStatus(defaultStatus);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -102,41 +114,57 @@ function RobotProfileCreationCard({
       return;
     }
 
-    setUploadStatus('Uploading image...');
-
-    try {
-      let imageURL = defaultImageURL;
-
-      if (defaultStatus === 'CREATE') {
+    let imageURL = defaultImageURL;
+    if (defaultStatus === 'CREATE') {
+      try {
+        setUploadStatus('Uploading image...');
         imageURL = await uploadImage(
           imageFile,
           `emh-${name}`,
           setUploadProgress,
         );
         setUploadProgress(0);
-        setUploadStatus('Uploading profile...');
-      }
-
-      try {
-        const robotProfile = {
-          name: name,
-          personality: personality,
-          extra: extra,
-          options: selectedOptions,
-          imageURL: imageURL,
-        };
-        await createRobotProfile(robotProfile);
       } catch (error) {
-        console.error('Failed to upload profile:', error);
-      } finally {
-        setUploadStatus('');
-        setToggle(false);
+        console.error('Failed to upload image:', error);
+        setUploadProgress(0);
+        return;
       }
-    } catch (error) {
-      console.error('Failed to upload image:', error);
-      setUploadProgress(0);
-      return;
     }
+
+    try {
+      setUploadStatus('Uploading profile...');
+      const robotProfile = {
+        name: name,
+        personality: personality,
+        extra: extra,
+        options: selectedOptions,
+        imageURL: imageURL,
+      };
+      await createRobotProfile(robotProfile);
+    } catch (error) {
+      console.error('Failed to upload profile:', error);
+    } finally {
+      setToggle(false);
+    }
+    // reset all the states
+    resetAllStatus();
+    refetchRobotsProfiles();
+  };
+
+  const handleDelete = async (event) => {
+    event.preventDefault();
+
+    try {
+      setUploadStatus('Deleting profile...');
+      await deleteRobotProfile(defaultName);
+    } catch (error) {
+      console.error('Failed to delete profile:', error);
+    } finally {
+      setToggle(false);
+    }
+    // reset all the states
+    resetAllStatus();
+    refetchRobotsProfiles();
   };
 
   return (
@@ -193,24 +221,36 @@ function RobotProfileCreationCard({
                 />
               </FormGroup>
             </div>
-            <div>
-              {uploadProgress > 0 ? (
-                <Progress value={uploadProgress} />
-              ) : (
-                <Button
-                  disabled={
-                    uploadStatus !== 'UPDATE' && uploadStatus !== 'CREATE'
-                  }
-                  color="primary"
-                  type="submit"
-                  className="btn-rounded mt-3"
-                  onClick={handleSubmit}
-                  style={{ margin: '0 auto', width: '100%' }}
-                >
-                  {uploadStatus}
-                </Button>
+            <Row>
+              {defaultStatus === 'UPDATE' && (
+                <Col style={{ padding: '0 0 0 1em' }}>
+                  <Button
+                    onClick={handleDelete}
+                    style={{ width: '100%', margin: '0em' }}
+                    color="warning"
+                  >
+                    Delete
+                  </Button>
+                </Col>
               )}
-            </div>
+              <Col>
+                {uploadProgress > 0 ? (
+                  <Progress value={uploadProgress} />
+                ) : (
+                  <Button
+                    disabled={
+                      uploadStatus !== 'UPDATE' && uploadStatus !== 'CREATE'
+                    }
+                    style={{ width: '100%', margin: '0em' }}
+                    color="primary"
+                    type="submit"
+                    onClick={handleSubmit}
+                  >
+                    {uploadStatus}
+                  </Button>
+                )}
+              </Col>
+            </Row>
           </CardBody>
         </ProfileCreaterCard>
       </Form>
