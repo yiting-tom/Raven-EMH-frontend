@@ -5,6 +5,7 @@ import { styled } from 'styled-components';
 
 import RobotOptions from './RobotOptions';
 import RobotProfileCreationCard from './RobotProfileCreationCard';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const ProfileCard = styled(Card)`
   border-radius: 1em;
@@ -22,6 +23,7 @@ export default function RobotProfileCard({
   refetchRobotsProfiles,
 }) {
   const [toggle, setToggle] = useState(false);
+  const { userRole } = React.useContext(AuthContext);
 
   return (
     <Col md="6" lg="4" style={{ margin: '1em 0' }}>
@@ -34,12 +36,14 @@ export default function RobotProfileCard({
           <img alt="avatar" className="avatar" src={imageURL} />
           <h4 className="title">
             {name}
-            <BiEdit
-              type="button"
-              size="0.8em"
-              style={{ marginTop: '0.5em' }}
-              onClick={() => setToggle(true)}
-            />
+            {userRole === 'ADMIN' && (
+              <BiEdit
+                type="button"
+                size="0.8em"
+                style={{ marginTop: '0.5em' }}
+                onClick={() => setToggle(true)}
+              />
+            )}
           </h4>
           <h5
             className="text-center"

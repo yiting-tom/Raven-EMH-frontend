@@ -7,6 +7,7 @@ import { styled } from 'styled-components';
 import { getRobotProfiles } from '../api/robotProfile';
 import RobotProfileCard from '../components/RobotProfileCard/RobotProfileCard';
 import RobotProfileCreationCard from '../components/RobotProfileCard/RobotProfileCreationCard';
+import { AuthContext } from '../contexts/AuthContext';
 import { color } from '../style';
 
 const ProfileCard = styled(Card)`
@@ -27,6 +28,7 @@ function RobotProfilePage() {
   const [emhRobots, setEmhRobots] = useState([]);
   const [toggle, setToggle] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(true);
+  const { userRole } = React.useContext(AuthContext);
 
   const fetchRobotsProfiles = async () => {
     const emhRobotsInDB = await getRobotProfiles();
@@ -79,27 +81,29 @@ function RobotProfilePage() {
               />
             ))}
 
-          <Col md="6" lg="4">
-            <ProfileCard className="card-user">
-              <AddRobotButton
-                className="btn-primary"
-                onClick={() => setToggle(!toggle)}
-              >
-                <BiUserPlus size="5em" />
-              </AddRobotButton>
-            </ProfileCard>
-            <RobotProfileCreationCard
-              refetchRobotsProfiles={fetchRobotsProfiles}
-              toggle={toggle}
-              setToggle={setToggle}
-              defaultExtra={''}
-              defaultImageURL={''}
-              defaultName={''}
-              defaultOptions={[]}
-              defaultPersonality={''}
-              defaultStatus={'CREATE'}
-            />
-          </Col>
+          {userRole === 'ADMIN' && ( // only admin can add new robot profile
+            <Col md="6" lg="4">
+              <ProfileCard className="card-user">
+                <AddRobotButton
+                  className="btn-primary"
+                  onClick={() => setToggle(!toggle)}
+                >
+                  <BiUserPlus size="5em" />
+                </AddRobotButton>
+              </ProfileCard>
+              <RobotProfileCreationCard
+                refetchRobotsProfiles={fetchRobotsProfiles}
+                toggle={toggle}
+                setToggle={setToggle}
+                defaultExtra={''}
+                defaultImageURL={''}
+                defaultName={''}
+                defaultOptions={[]}
+                defaultPersonality={''}
+                defaultStatus={'CREATE'}
+              />
+            </Col>
+          )}
         </Row>
       )}
     </div>
