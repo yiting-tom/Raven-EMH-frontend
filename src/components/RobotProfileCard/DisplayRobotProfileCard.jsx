@@ -6,8 +6,8 @@ import { styled, css } from 'styled-components';
 import { createJellyAnimation, color } from '../../style';
 
 const ProfileCard = styled(Card)`
-  height: 300px;
-  max-height: 300px;
+  /* height: 360px; */
+  max-height: 360px;
   width: 200px;
   max-width: 200px;
   border-radius: 1em;
@@ -37,9 +37,7 @@ const ProfileCard = styled(Card)`
 export default function DisplayRobotProfileCard({
   imageURL,
   name,
-  personality,
-  // extra,
-  // options,
+  description,
   selected,
   onClick,
 }) {
@@ -74,14 +72,11 @@ export default function DisplayRobotProfileCard({
         <div className="block block-four" />
         <img alt="avatar" className="avatar" src={imageURL} />
         <h4 className="title">{name}</h4>
-        <h5 className="text-center" style={{ margin: '0', fontSize: '1em' }}>
-          Personality
-        </h5>
         <div
           className="card-description"
           style={{ margin: '0 0 0.5em', fontSize: '0.8em' }}
         >
-          {personality}
+          {description}
         </div>
         {/* <h5
           className="text-center"

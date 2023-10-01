@@ -17,9 +17,10 @@ const ProfileCard = styled(Card)`
 export default function RobotProfileCard({
   imageURL,
   name,
-  personality,
-  extra,
+  prompt,
+  description,
   options,
+  filters,
   refetchRobotsProfiles,
 }) {
   const [toggle, setToggle] = useState(false);
@@ -49,19 +50,10 @@ export default function RobotProfileCard({
             className="text-center"
             style={{ margin: '0', fontWeight: 'bold' }}
           >
-            Personality
+            Prompt
           </h5>
           <div className="card-description" style={{ margin: '0 0 0.5em' }}>
-            {personality}
-          </div>
-          <h5
-            className="text-center"
-            style={{ margin: '1em 0 0', fontWeight: 'bold' }}
-          >
-            Extra Prompt
-          </h5>
-          <div className="card-description" style={{ margin: '0 0 0.5em' }}>
-            {extra ? extra : 'None'}
+            {prompt}
           </div>
           <RobotOptions
             selectedOptions={options}
@@ -73,12 +65,13 @@ export default function RobotProfileCard({
         refetchRobotsProfiles={refetchRobotsProfiles}
         toggle={toggle}
         setToggle={setToggle}
-        defaultExtra={extra}
         defaultName={name}
         defaultOptions={options ? options : []}
-        defaultPersonality={personality}
+        defaultPrompt={prompt}
+        defaultDescription={description}
         defaultStatus={'UPDATE'}
         defaultImageURL={imageURL ? imageURL : null}
+        defaultFilters={filters ? filters : []}
       />
     </Col>
   );

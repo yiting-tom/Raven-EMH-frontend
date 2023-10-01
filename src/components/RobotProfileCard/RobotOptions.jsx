@@ -2,7 +2,6 @@ import React from 'react';
 import { BiSolidUserVoice, BiHistory } from 'react-icons/bi';
 import { BsPersonVideo } from 'react-icons/bs';
 import { FaBookMedical } from 'react-icons/fa';
-import { SiOpenai } from 'react-icons/si';
 import { Button, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
@@ -21,11 +20,6 @@ const RobotOptionsContainer = styled.div`
 `;
 
 const options = [
-  {
-    name: 'GPT-4',
-    icon: <SiOpenai size="1em" />,
-    description: 'Use GPT-4 to generate text',
-  },
   {
     name: 'VOICE',
     icon: <BiSolidUserVoice size="1em" />,

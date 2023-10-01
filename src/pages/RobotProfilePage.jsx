@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { BiUserPlus } from 'react-icons/bi';
 import { Rings } from 'react-loader-spinner';
 import { Row, Card, Button, Col } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import { getRobotProfiles } from '../api/robotProfile';
 import RobotProfileCard from '../components/RobotProfileCard/RobotProfileCard';
 import RobotProfileCreationCard from '../components/RobotProfileCard/RobotProfileCreationCard';
 import { AuthContext } from '../contexts/AuthContext';
+import { RobotProfilesContext } from '../contexts/RobotProfilesContext';
 import { color } from '../style';
 
 const ProfileCard = styled(Card)`
@@ -25,26 +25,16 @@ const AddRobotButton = styled(Button)`
 `;
 
 function RobotProfilePage() {
-  const [emhRobots, setEmhRobots] = useState([]);
   const [toggle, setToggle] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(true);
   const { userRole } = React.useContext(AuthContext);
-
-  const fetchRobotsProfiles = async () => {
-    const emhRobotsInDB = await getRobotProfiles();
-    setEmhRobots(emhRobotsInDB);
-    console.debug(`fetched ${emhRobotsInDB.length} robots`);
-  };
+  const { robotProfiles } = useContext(RobotProfilesContext);
 
   useEffect(() => {
-    fetchRobotsProfiles();
-  }, []);
-
-  useEffect(() => {
-    if (emhRobots.length > 0) {
+    if (robotProfiles.length > 0) {
       setIsFetchingData(false);
     }
-  }, [emhRobots]);
+  }, [robotProfiles]);
 
   return (
     <div className="content">
@@ -72,12 +62,12 @@ function RobotProfilePage() {
         </div>
       ) : (
         <Row>
-          {emhRobots.length > 0 &&
-            emhRobots.map((robot) => (
+          {robotProfiles.length > 0 &&
+            robotProfiles.map((robot) => (
               <RobotProfileCard
                 {...robot}
                 key={robot.name}
-                refetchRobotsProfiles={fetchRobotsProfiles}
+                refetchRobotsProfiles={() => {}}
               />
             ))}
 
@@ -92,15 +82,16 @@ function RobotProfilePage() {
                 </AddRobotButton>
               </ProfileCard>
               <RobotProfileCreationCard
-                refetchRobotsProfiles={fetchRobotsProfiles}
+                refetchRobotsProfiles={() => {}}
                 toggle={toggle}
                 setToggle={setToggle}
-                defaultExtra={''}
+                defaultPrompt={''}
+                defaultDescription={''}
                 defaultImageURL={''}
                 defaultName={''}
                 defaultOptions={[]}
-                defaultPersonality={''}
                 defaultStatus={'CREATE'}
+                defaultFilters={[]}
               />
             </Col>
           )}
