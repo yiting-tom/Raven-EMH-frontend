@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Progress,
   Form,
@@ -10,16 +10,14 @@ import {
   Modal,
   Row,
   Col,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownToggle,
 } from 'reactstrap';
 import { styled } from 'styled-components';
 
+import DropdownField from './DropdownField';
+import FilterField from './FilterField';
 import ImageUploader from './ImageUploader';
 import RobotOptions from './RobotOptions';
-import { createRobotProfile, deleteRobotProfile } from '../../api/robotProfile';
+import { RobotProfilesContext } from '../../contexts/RobotProfilesContext';
 import { uploadImage } from '../../utils/storage';
 
 const voiceList = [
@@ -32,11 +30,23 @@ const voiceList = [
   'Brian (Neural)',
 ];
 
+const modelList = [
+  'gpt-3.5-turbo',
+  'gpt-3.5-turbo-0613',
+  'gpt-3.5-turbo-16k',
+  'gpt-3.5-turbo-16k-0613',
+  'gpt-4',
+  'gpt-4-0613',
+  'gpt-4-32k',
+  'gpt-4-32k-0613',
+];
+
 const CreaterModal = styled(Modal)`
   margin: auto;
-  margin-top: -8em;
+  margin-top: -20vh;
   box-shadow: 0px 0px 100vw rgba(0, 0, 0, 1);
   background-color: transparent;
+  border-radius: 1em;
   .modal-content {
     background-color: transparent;
   }
@@ -70,41 +80,40 @@ const TextareaInput = styled(Input)`
   margin-bottom: 2em;
   padding: 2px;
   width: 100%;
+  height: 30vh
+  max-height: 30vh;
 `;
 
 export default function RobotProfileCreationCard({
-  refetchRobotsProfiles,
   toggle,
   setToggle,
   defaultImageURL,
   defaultName,
-  defaultPersonality,
-  defaultExtra,
+  defaultPrompt,
   defaultOptions,
   defaultStatus,
+  defaultFilters,
+  defaultDescription,
 }) {
   const [imageFile, setImageFile] = useState(null);
   const [name, setName] = useState(defaultName);
-  const [personality, setPersonality] = useState(defaultPersonality);
-  const [extra, setExtra] = useState(defaultExtra);
+  const [prompt, setPrompt] = useState(defaultPrompt);
+  const [description, setDescription] = useState(defaultDescription);
   const [selectedOptions, setSelectedOptions] = useState(defaultOptions);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState(defaultStatus);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedVoice, setSelectedVoice] = useState(voiceList[0]);
-
-  const toggleDropdown = () => setDropdownOpen((prevState) => !prevState);
-
-  const handleSelectVoice = (voice) => {
-    setSelectedVoice(voice);
-  };
+  const [selectedModel, setSelectedModel] = useState(modelList[0]);
+  const [filters, setFilters] = useState(defaultFilters);
+  const {
+    robotProfiles,
+    addRobotProfile,
+    modifyRobotProfile,
+    removeRobotProfile,
+    fetchRobotProfiles,
+  } = useContext(RobotProfilesContext);
 
   const resetAllStatus = () => {
-    setImageFile(null);
-    setName('');
-    setPersonality('');
-    setExtra('');
-    setSelectedOptions([]);
     setUploadProgress(0);
     setUploadStatus(defaultStatus);
   };
@@ -125,10 +134,14 @@ export default function RobotProfileCreationCard({
     } else if (name.length < 3) {
       errorMessage += 'Name should be at least 3 characters long. ';
     }
+    // Check if the name is already used
+    if (robotProfiles.some((profile) => profile.name === name)) {
+      errorMessage += 'Name is already used. ';
+    }
 
-    // Validate the personality input
-    if (personality.trim() === '') {
-      errorMessage += 'Personality is required. ';
+    // Validate the prompt input
+    if (prompt.trim() === '') {
+      errorMessage += 'Prompt is required. ';
     }
 
     // If there are any validation errors, alert the user
@@ -153,25 +166,35 @@ export default function RobotProfileCreationCard({
         return;
       }
     }
-
-    try {
-      setUploadStatus('Uploading profile...');
-      const robotProfile = {
-        name: name,
-        personality: personality,
-        extra: extra,
-        options: selectedOptions,
-        imageURL: imageURL,
-      };
-      await createRobotProfile(robotProfile);
-    } catch (error) {
-      console.error('Failed to upload profile:', error);
-    } finally {
-      setToggle(false);
+    const robotProfile = {
+      name: name,
+      prompt: prompt,
+      options: selectedOptions,
+      description: description,
+      imageURL: imageURL,
+      model: selectedModel,
+      filters: filters,
+    };
+    setUploadStatus('Uploading profile...');
+    console.log('robotProfile', robotProfile);
+    if (defaultName !== '') {
+      try {
+        await modifyRobotProfile(defaultName, robotProfile);
+      } catch (error) {
+        console.error('Failed to upload profile:', error);
+      }
+    } else {
+      try {
+        await addRobotProfile(robotProfile);
+      } catch (error) {
+        console.error('Failed to upload profile:', error);
+      } finally {
+        setToggle(false);
+      }
     }
     // reset all the states
     resetAllStatus();
-    refetchRobotsProfiles();
+    await fetchRobotProfiles();
   };
 
   const handleDelete = async (event) => {
@@ -179,15 +202,15 @@ export default function RobotProfileCreationCard({
 
     try {
       setUploadStatus('Deleting profile...');
-      await deleteRobotProfile(defaultName);
+      await removeRobotProfile(defaultName);
     } catch (error) {
       console.error('Failed to delete profile:', error);
     } finally {
       setToggle(false);
     }
     // reset all the states
-    resetAllStatus();
-    refetchRobotsProfiles();
+    // resetAllStatus();
+    fetchRobotProfiles();
   };
 
   return (
@@ -209,7 +232,7 @@ export default function RobotProfileCreationCard({
 
               <FormGroup>
                 <Row>
-                  <Col>
+                  <Col style={{ padding: '0 1em' }}>
                     <TextareaLabel>Name</TextareaLabel>
                     <NameInput
                       disabled={defaultStatus === 'UPDATE'}
@@ -218,52 +241,44 @@ export default function RobotProfileCreationCard({
                       onChange={(e) => setName(e.target.value)}
                     />
                   </Col>
-                  <Col>
+                  <Col style={{ padding: '0' }}>
                     <TextareaLabel>Voice</TextareaLabel>
-                    <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
-                      <DropdownToggle
-                        style={{
-                          padding: '10px',
-                          margin: 'auto',
-                          width: '100%',
-                        }}
-                      >
-                        {selectedVoice}
-                      </DropdownToggle>
-                      <DropdownMenu
-                        style={{ width: '80%', margin: '0.5em 0 0 10%' }}
-                      >
-                        {voiceList.map((voice) => (
-                          <DropdownItem
-                            key={voice}
-                            onClick={() => handleSelectVoice(voice)}
-                          >
-                            {voice}
-                          </DropdownItem>
-                        ))}
-                      </DropdownMenu>
-                    </Dropdown>
+                    <DropdownField
+                      itemList={voiceList}
+                      selectedItem={selectedVoice}
+                      setSelectedItem={setSelectedVoice}
+                    />
+                  </Col>
+                  <Col style={{ padding: '0 1em' }}>
+                    <TextareaLabel>Model</TextareaLabel>
+                    <DropdownField
+                      itemList={modelList}
+                      selectedItem={selectedModel}
+                      setSelectedItem={setSelectedModel}
+                    />
                   </Col>
                 </Row>
               </FormGroup>
 
               <FormGroup>
-                <TextareaLabel>Personality</TextareaLabel>
+                <TextareaLabel>Description</TextareaLabel>
                 <TextareaInput
                   type="textarea"
-                  value={personality}
-                  placeholder="New Robot Personality"
-                  onChange={(e) => setPersonality(e.target.value)}
+                  value={description}
+                  placeholder="Description for the robot"
+                  style={{ height: '6vh', maxHeight: '6vh' }}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </FormGroup>
 
               <FormGroup>
-                <TextareaLabel>Extra Prompts</TextareaLabel>
+                <TextareaLabel>Prompt</TextareaLabel>
                 <TextareaInput
                   type="textarea"
-                  value={extra}
-                  placeholder="Extra Prompts"
-                  onChange={(e) => setExtra(e.target.value)}
+                  value={prompt}
+                  placeholder="Prompt (You can use {input} to access the input text)"
+                  style={{ height: '20vh', maxHeight: '20vh' }}
+                  onChange={(e) => setPrompt(e.target.value)}
                 />
               </FormGroup>
 
@@ -274,7 +289,15 @@ export default function RobotProfileCreationCard({
                   setSelectedOptions={setSelectedOptions}
                 />
               </FormGroup>
+
+              <FormGroup>
+                <TextareaLabel>Filter</TextareaLabel>
+                <FilterField filters={filters} setFilters={setFilters} />
+              </FormGroup>
             </div>
+
+            <hr style={{ margin: '1em 0' }} />
+
             <Row>
               {defaultStatus === 'UPDATE' && uploadStatus === 'UPDATE' && (
                 <Col style={{ padding: '0 0 0 1em' }}>
