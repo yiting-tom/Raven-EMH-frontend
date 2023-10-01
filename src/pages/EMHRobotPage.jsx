@@ -22,17 +22,17 @@ import { useMediaQuery } from 'utils/animation';
 import { base64ToBlobUrl } from 'utils/converter';
 
 import { sendChatMessage, fetchAllChatsByUserId } from '../api/chat';
-import { getRobotProfiles } from '../api/robotProfile';
 import ChatHistory from '../components/ChatHistory/ChatHistory';
 import MessageSender from '../components/MessageSender/MessageSender';
 import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobotProfileCard';
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import { AuthContext } from '../contexts/AuthContext';
+import { RobotProfilesContext } from '../contexts/RobotProfilesContext';
 
 const CarouselModal = styled(Modal)`
   border-radius: 1em;
   max-width: 100vw;
-  max-width: 768px;
+  max-width: 1024px;
   width: 100vw;
   box-shadow: none;
   .modal-content {
@@ -71,7 +71,7 @@ function EMHRobotPage() {
   const [chats, setChats] = useState([]);
   const [videoUrl, setVideoUrl] = useState(null);
   const [message, setMessage] = useState('');
-  const [robotProfiles, setRobotProfiles] = useState([]);
+  const { robotProfiles } = useContext(RobotProfilesContext);
   const [selectedRobotIdx, setSelectedRobotIdx] = useState(0);
   const [isFetchingRobotsProfiles, setIsFetchingRobotsProfiles] =
     useState(true);
@@ -135,15 +135,6 @@ function EMHRobotPage() {
   }, []);
 
   useEffect(() => {
-    const fetchAllRobotsProfiles = async () => {
-      const data = await getRobotProfiles();
-      setRobotProfiles(data);
-    };
-
-    fetchAllRobotsProfiles();
-  }, []);
-
-  useEffect(() => {
     if (robotProfiles.length > 0) {
       setIsFetchingRobotsProfiles(false);
     }
@@ -162,10 +153,13 @@ function EMHRobotPage() {
 
     // Send the message to the backend
     const fetchedChats = await sendChatMessage(
-      userId,
-      username,
-      message,
-      parentId,
+      {
+        user_id: userId,
+        username: username,
+        message: message,
+        parentId: parentId,
+      },
+      robotProfiles[selectedRobotIdx],
     );
 
     // Update the chats state by adding the new chat
@@ -299,7 +293,7 @@ function EMHRobotPage() {
 
           <MessageSenderContainer>
             <MessageSender
-              isFetchingChats={isFetchingChats}
+              isFetchingChats={!isFetchingChats}
               start={start}
               setStart={setStart}
               status={status}
