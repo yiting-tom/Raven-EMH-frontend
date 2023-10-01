@@ -41,9 +41,7 @@ export async function getSpecificRobotProfile(specificId) {
 export async function updateRobotProfile(specificId, updatedContent) {
   const robotProfileRef = doc(robotProfilesCollectionRef, specificId);
   console.debug('Updating document with ID: ', specificId);
-  await updateDoc(robotProfileRef, {
-    content: updatedContent,
-  });
+  await updateDoc(robotProfileRef, updatedContent);
 }
 
 export async function deleteRobotProfile(specificId) {
