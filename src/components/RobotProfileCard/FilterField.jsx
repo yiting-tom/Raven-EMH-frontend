@@ -71,7 +71,6 @@ export default function FilterField({ filters, setFilters }) {
             />
           </CustomButton>
         ))}
-
       <CustomButton color="primary" onClick={handleIsAddToggle}>
         Add Filter
         <FilterFieldModal

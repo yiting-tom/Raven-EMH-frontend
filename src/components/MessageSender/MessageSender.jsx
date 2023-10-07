@@ -3,7 +3,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { BiPlus, BiSend } from 'react-icons/bi';
 import { MdKeyboardCommandKey, MdKeyboardReturn } from 'react-icons/md';
 import { RiseLoader } from 'react-spinners';
-import { Button, Input, Row, Col } from 'reactstrap';
+import { Button, Col, Input, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
 import SpeechRecognizer from 'components/SpeechRecognizer/SpeechRecognizer';
@@ -27,6 +27,7 @@ export const SendButton = styled(Button)`
     padding: 0.3em;
   }
 `;
+
 const UserInputArea = styled(Input)`
   font-size: 1em;
   width: 100%;
@@ -122,7 +123,7 @@ const MessageSender = ({
           <ButtonCol md="2" xs="6" className="button-col">
             <SendButton
               className="send-button btn-primary"
-              disabled={status === 'sending' || isFetchingChats}
+              disabled={status === 'sending'}
               type="submit"
             >
               {status === 'sending' ? (

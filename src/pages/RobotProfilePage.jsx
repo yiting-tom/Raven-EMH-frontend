@@ -26,14 +26,16 @@ const AddRobotButton = styled(Button)`
 
 function RobotProfilePage() {
   const [toggle, setToggle] = useState(false);
-  const [isFetchingData, setIsFetchingData] = useState(true);
+  const [isFetchingData, setIsFetchingData] = useState(false);
   const { userRole } = React.useContext(AuthContext);
   const { robotProfiles } = useContext(RobotProfilesContext);
 
   useEffect(() => {
-    if (robotProfiles.length > 0) {
+    // if (Object.keys(robotProfiles).length > 0) {
+    // }
+    setTimeout(() => {
       setIsFetchingData(false);
-    }
+    }, 1000);
   }, [robotProfiles]);
 
   return (
@@ -62,11 +64,12 @@ function RobotProfilePage() {
         </div>
       ) : (
         <Row>
-          {robotProfiles.length > 0 &&
-            robotProfiles.map((robot) => (
+          {Object.keys(robotProfiles).length > 0 &&
+            Object.entries(robotProfiles).map(([profileId, robot]) => (
               <RobotProfileCard
                 {...robot}
-                key={robot.name}
+                profileId={profileId}
+                key={profileId}
                 refetchRobotsProfiles={() => {}}
               />
             ))}

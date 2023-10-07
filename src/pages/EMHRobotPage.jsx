@@ -21,7 +21,7 @@ import { color } from 'style';
 import { useMediaQuery } from 'utils/animation';
 import { base64ToBlobUrl } from 'utils/converter';
 
-import { sendChatMessage, fetchAllChatsByUserId } from '../api/chat';
+import { sendChatMessage, fetchAllChatsByUserIdAndRobotId } from '../api/chat';
 import ChatHistory from '../components/ChatHistory/ChatHistory';
 import MessageSender from '../components/MessageSender/MessageSender';
 import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobotProfileCard';
@@ -72,7 +72,9 @@ function EMHRobotPage() {
   const [videoUrl, setVideoUrl] = useState(null);
   const [message, setMessage] = useState('');
   const { robotProfiles } = useContext(RobotProfilesContext);
-  const [selectedRobotIdx, setSelectedRobotIdx] = useState(0);
+  const [selectedRobotId, setSelectedRobotId] = useState(
+    Object.keys(robotProfiles)[0],
+  );
   const [isFetchingRobotsProfiles, setIsFetchingRobotsProfiles] =
     useState(true);
 
@@ -114,28 +116,33 @@ function EMHRobotPage() {
     }
   };
 
-  // Fetch all chats from database at the beginning
+  // Fetch all chats from database when selected robot is changed
   useEffect(() => {
     const userId = currentUser.uid;
     const fetchChats = async () => {
-      const data = await fetchAllChatsByUserId(userId);
+      const data = await fetchAllChatsByUserIdAndRobotId(
+        userId,
+        selectedRobotId,
+      );
+      setIsFetchingChats(false);
       if (!data) return;
       setChats(data);
 
       // Transform the last chat's video to blob url
       const lastChat = data[data.length - 1];
-      if (lastChat) {
-        const videoUrl = base64ToBlobUrl(lastChat.video);
+      if (lastChat && lastChat.video_base64) {
+        const videoUrl = base64ToBlobUrl(lastChat.video_base64);
         setVideoUrl(videoUrl);
+      } else {
+        setVideoUrl(null);
       }
-      setIsFetchingChats(false);
     };
 
     fetchChats();
-  }, []);
+  }, [selectedRobotId]);
 
   useEffect(() => {
-    if (robotProfiles.length > 0) {
+    if (Object.keys(robotProfiles).length > 0) {
       setIsFetchingRobotsProfiles(false);
     }
   }, [robotProfiles]);
@@ -152,24 +159,31 @@ function EMHRobotPage() {
     setStatus('sending');
 
     // Send the message to the backend
-    const fetchedChats = await sendChatMessage(
+    const history = chats.reduce((accumulator, chat) => {
+      return accumulator.concat([chat.request, chat.response]);
+    }, []);
+
+    const chatResponse = await sendChatMessage(
       {
         user_id: userId,
+        parent_id: parentId,
         username: username,
         message: message,
-        parentId: parentId,
+        history: history,
       },
-      robotProfiles[selectedRobotIdx],
+      {
+        robot_id: selectedRobotId,
+        ...robotProfiles[selectedRobotId],
+      },
     );
 
-    // Update the chats state by adding the new chat
-    setChats([...chats, fetchedChats]);
-
     // Transform the last chat's video to blob url
-    const lastChat = fetchedChats;
+    const lastChat = chatResponse;
     if (lastChat) {
-      const videoUrl = base64ToBlobUrl(lastChat.video);
+      const videoUrl = base64ToBlobUrl(lastChat.video_base64);
       setVideoUrl(videoUrl);
+      // Update the chats state by adding the new chat
+      setChats([...chats, lastChat]);
     }
 
     // Set status to 'idle'
@@ -185,7 +199,7 @@ function EMHRobotPage() {
     // keep listening
     if (
       browserSupportsSpeechRecognition &&
-      message.length < 4 &&
+      message.length < 1 &&
       prevStatus === 'listening' &&
       status === 'idle'
     ) {
@@ -197,7 +211,7 @@ function EMHRobotPage() {
     // send message to backend
     if (
       browserSupportsSpeechRecognition &&
-      message.length >= 2 &&
+      message.length > 0 &&
       prevStatus === 'listening' &&
       status === 'idle'
     ) {
@@ -264,7 +278,10 @@ function EMHRobotPage() {
               <div className="block block-four" />
             </div>
             <VideoPlayer
-              imageURL={robotProfiles[selectedRobotIdx].imageURL}
+              imageURL={
+                robotProfiles[selectedRobotId] &&
+                robotProfiles[selectedRobotId].imageURL
+              }
               start={start}
               setStart={setStart}
               videoUrl={videoUrl}
@@ -353,17 +370,16 @@ function EMHRobotPage() {
                   />
                 }
               >
-                {robotProfiles.length > 0 &&
-                  robotProfiles.map((robot, idx) => (
-                    <DisplayRobotProfileCard
-                      onClick={() => {
-                        setSelectedRobotIdx(idx);
-                      }}
-                      {...robot}
-                      key={robot.name}
-                      selected={idx === selectedRobotIdx}
-                    />
-                  ))}
+                {Object.entries(robotProfiles).map(([profileId, robot]) => (
+                  <DisplayRobotProfileCard
+                    onClick={() => {
+                      setSelectedRobotId(profileId);
+                    }}
+                    {...robot}
+                    key={profileId}
+                    selected={profileId === selectedRobotId}
+                  />
+                ))}
               </Carousel>
             </div>
           </CarouselModal>

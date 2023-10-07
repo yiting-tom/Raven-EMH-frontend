@@ -5,8 +5,9 @@ import { BiHide, BiShow } from 'react-icons/bi';
 import { Button, ButtonGroup, CardBody, CardText, Col } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import { AuthContext } from 'contexts/AuthContext';
-import { color } from 'style.js';
+import RobotProfileModal from './RobotProfileModal';
+import { AuthContext } from '../../contexts/AuthContext';
+import { color } from '../../style.js';
 
 const ConversationContainer = styled(animated(Col))`
   border-radius: 1em;
@@ -28,7 +29,7 @@ const ToggleBar = styled.div`
   text-align: center;
 `;
 
-const ToggleAnnotationAreaButton = styled(Button)`
+const OptionButton = styled(Button)`
   padding: 2px 6px;
   /* display: inline-block; */
   position: relative;
@@ -44,6 +45,7 @@ const AnnotationArea = styled.div`
 `}
 `;
 
+// TODO: display robot profile modal
 const Conversation = ({
   conversation,
   submitMap,
@@ -53,14 +55,13 @@ const Conversation = ({
   selfIdx,
   delay,
 }) => {
-  const { id, request, response, annotations } = conversation;
-  const [score, setScore] = useState(
-    annotations.length > 0 ? annotations[annotations.length - 1].score : 0,
-  );
-  const [annotated, setAnnotated] = useState(annotations.length > 0);
+  const { id, request, response, annotation, robot_profile } = conversation;
+  const [score, setScore] = useState(annotation ? annotation.score : 0);
+  const [annotated, setAnnotated] = useState(annotation > 0);
   const [toggleAnnotationArea, setToggleAnnotationArea] = useState(
-    annotations.length > 0,
+    annotation !== null,
   );
+  const [toggleRobotProfileModal, setToggleRobotProfileModal] = useState(false);
   const scrollRef = useRef(null);
   const spring = useSpring({
     from: { opacity: 0, translateX: '-100vw' },
@@ -88,8 +89,7 @@ const Conversation = ({
     }
   });
   useHotkeys('backspace', () => {
-    if (score !== 0 && curIdx === selfIdx && annotations.length === 0)
-      setAnnotated(false);
+    if (score !== 0 && curIdx === selfIdx && annotation) setAnnotated(false);
   });
   useHotkeys(['h', 'left'], () => {
     if (curIdx === selfIdx && !annotated) setScore((score - 1 + 6) % 6);
@@ -102,7 +102,7 @@ const Conversation = ({
   });
 
   useEffect(() => {
-    if (annotations.length > 0) return;
+    if (annotation) return;
     const doctorId = currentUser.uid;
 
     if (id in submitMap && !annotated) {
@@ -132,7 +132,7 @@ const Conversation = ({
     const borderType = annotated ? 'solid' : 'dashed';
 
     if (annotated) {
-      if (annotations.length > 0) {
+      if (annotation > 0) {
         style.border = `1px solid ${color.successA(0.8)}`;
         style.backgroundColor = color.successA(0.05);
       } else {
@@ -157,26 +157,34 @@ const Conversation = ({
         <CardText>{request}</CardText>
 
         <div style={{ width: '100%' }}>
-          {annotations.length > 0 ? (
-            annotations.map((annot, index) => (
-              <>
-                <span key={index} style={{ fontSize: '0.7em' }}>
-                  score: {annot.score} by "{annot.created_by}" at{' '}
-                  {annot.created_at}
-                </span>
-              </>
-            ))
+          {annotation ? (
+            <span style={{ fontSize: '0.7em' }}>
+              score: {annotation.score} by "{annotation.created_by}" at{' '}
+              {annotation.created_at}
+            </span>
           ) : (
             <span style={{ fontSize: '0.7em' }}>No annotation</span>
           )}
           {
-            <ToggleAnnotationAreaButton
+            <OptionButton
               onClick={() => setToggleAnnotationArea(!toggleAnnotationArea)}
             >
               {!toggleAnnotationArea ? <BiHide /> : <BiShow />}
-            </ToggleAnnotationAreaButton>
+            </OptionButton>
           }
+          <OptionButton
+            onClick={() => setToggleRobotProfileModal(!toggleRobotProfileModal)}
+          >
+            Robot Profile
+          </OptionButton>
         </div>
+
+        <RobotProfileModal
+          isOpen={toggleRobotProfileModal}
+          toggle={() => setToggleRobotProfileModal(!toggleRobotProfileModal)}
+          robotProfile={robot_profile}
+          workflow={conversation.workflow}
+        />
 
         <AnnotationArea $isToggle={toggleAnnotationArea}>
           <hr />
@@ -187,7 +195,7 @@ const Conversation = ({
               <ButtonGroup style={{ display: 'block', width: '100%' }}>
                 {Array.from({ length: 5 }, (_, i) => i + 1).map((i) => (
                   <Button
-                    disabled={annotations.length > 0 || annotated}
+                    disabled={annotation !== null || annotated}
                     key={i}
                     onClick={() => setScore(i)}
                     style={{
@@ -196,7 +204,7 @@ const Conversation = ({
                         i === score &&
                         `1px ${annotated ? 'solid' : 'dashed'} ${
                           annotated
-                            ? annotations.length > 0
+                            ? annotation
                               ? color.successA(0.8)
                               : color.infoA(0.8)
                             : color.primaryA(0.8)

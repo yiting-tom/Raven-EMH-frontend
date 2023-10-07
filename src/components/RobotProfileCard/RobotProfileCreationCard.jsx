@@ -1,33 +1,34 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
-  Progress,
-  Form,
-  FormGroup,
-  Input,
   Button,
   Card,
   CardBody,
-  Modal,
-  Row,
   Col,
+  Form,
+  FormGroup,
+  Input,
+  Modal,
+  Progress,
+  Row,
 } from 'reactstrap';
 import { styled } from 'styled-components';
+import { v4 as uuidv4 } from 'uuid';
 
 import DropdownField from './DropdownField';
 import FilterField from './FilterField';
 import ImageUploader from './ImageUploader';
 import RobotOptions from './RobotOptions';
 import { RobotProfilesContext } from '../../contexts/RobotProfilesContext';
-import { uploadImage } from '../../utils/storage';
+import { deleteImage, uploadImage } from '../../utils/storage';
 
 const voiceList = [
-  'Author (Neural)',
-  'Amy (Standard)',
+  'Arthur (Neural)',
   'Amy (Neural)',
-  'Emma (Standard)',
-  'Emma (Neural)',
-  'Brian (Standard)',
+  'Amy (Standard)',
   'Brian (Neural)',
+  'Brian (Standard)',
+  'Emma (Neural)',
+  'Emma (Standard)',
 ];
 
 const modelList = [
@@ -87,6 +88,7 @@ const TextareaInput = styled(Input)`
 export default function RobotProfileCreationCard({
   toggle,
   setToggle,
+  defaultId,
   defaultImageURL,
   defaultName,
   defaultPrompt,
@@ -118,9 +120,8 @@ export default function RobotProfileCreationCard({
     setUploadStatus(defaultStatus);
   };
 
-  const handleSubmit = async (event) => {
+  const handleAddProfile = async (event) => {
     event.preventDefault();
-
     let errorMessage = '';
 
     // Check if imageFile is provided
@@ -135,7 +136,7 @@ export default function RobotProfileCreationCard({
       errorMessage += 'Name should be at least 3 characters long. ';
     }
     // Check if the name is already used
-    if (robotProfiles.some((profile) => profile.name === name)) {
+    if (Object.values(robotProfiles).some((profile) => profile.name === name)) {
       errorMessage += 'Name is already used. ';
     }
 
@@ -151,12 +152,82 @@ export default function RobotProfileCreationCard({
     }
 
     let imageURL = defaultImageURL;
+    const newId = `${name}-${uuidv4()}`;
+
     if (imageFile) {
       try {
         setUploadStatus('Uploading image...');
         imageURL = await uploadImage(
           imageFile,
-          `emh-${name}`,
+          'emh',
+          newId,
+          setUploadProgress,
+        );
+        setUploadProgress(0);
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        setUploadProgress(0);
+        return;
+      }
+    }
+
+    const robotProfile = {
+      name: name,
+      prompt: prompt,
+      options: selectedOptions,
+      voice: selectedVoice,
+      description: description,
+      imageURL: imageURL,
+      model: selectedModel,
+      filters: filters,
+    };
+    setUploadStatus('Uploading profile...');
+
+    try {
+      await addRobotProfile(robotProfile, newId);
+    } catch (error) {
+      console.error('Failed to upload profile:', error);
+    } finally {
+      setToggle(false);
+    }
+
+    // reset all the states
+    resetAllStatus();
+    await fetchRobotProfiles();
+  };
+
+  const handleUpdateProfile = async (event) => {
+    event.preventDefault();
+
+    let errorMessage = '';
+
+    // Check if imageFile is provided
+    if (!imageFile && !defaultImageURL) {
+      errorMessage += 'Image file is required. ';
+    }
+
+    // Validate the prompt input
+    if (prompt.trim() === '') {
+      errorMessage += 'Prompt is required. ';
+    }
+
+    // If there are any validation errors, alert the user
+    if (errorMessage) {
+      alert(errorMessage);
+      return;
+    }
+
+    let imageURL = defaultImageURL;
+    const originalId = `${defaultName}-${defaultId}`;
+
+    if (imageFile) {
+      try {
+        setUploadStatus('Uploading image...');
+        await deleteImage('emh', originalId);
+        imageURL = await uploadImage(
+          imageFile,
+          'emh',
+          originalId,
           setUploadProgress,
         );
         setUploadProgress(0);
@@ -170,6 +241,7 @@ export default function RobotProfileCreationCard({
       name: name,
       prompt: prompt,
       options: selectedOptions,
+      voice: selectedVoice,
       description: description,
       imageURL: imageURL,
       model: selectedModel,
@@ -177,32 +249,31 @@ export default function RobotProfileCreationCard({
     };
     setUploadStatus('Uploading profile...');
     console.log('robotProfile', robotProfile);
-    if (defaultName !== '') {
-      try {
-        await modifyRobotProfile(defaultName, robotProfile);
-      } catch (error) {
-        console.error('Failed to upload profile:', error);
-      }
-    } else {
-      try {
-        await addRobotProfile(robotProfile);
-      } catch (error) {
-        console.error('Failed to upload profile:', error);
-      } finally {
-        setToggle(false);
-      }
+    try {
+      await modifyRobotProfile(originalId, robotProfile);
+    } catch (error) {
+      console.error('Failed to upload profile:', error);
     }
     // reset all the states
     resetAllStatus();
     await fetchRobotProfiles();
   };
 
-  const handleDelete = async (event) => {
+  const handleDeleteProfile = async (event) => {
     event.preventDefault();
+    if (defaultName === 'Alpha Noble') {
+      alert('Cannot delete the default profile.');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to delete this profile?')) {
+      return;
+    }
 
+    const originalId = `${defaultName}-${defaultId}`;
     try {
       setUploadStatus('Deleting profile...');
-      await removeRobotProfile(defaultName);
+      await deleteImage('emh', originalId);
+      await removeRobotProfile(originalId);
     } catch (error) {
       console.error('Failed to delete profile:', error);
     } finally {
@@ -242,7 +313,17 @@ export default function RobotProfileCreationCard({
                     />
                   </Col>
                   <Col style={{ padding: '0' }}>
-                    <TextareaLabel>Voice</TextareaLabel>
+                    <TextareaLabel>
+                      Voice (
+                      <a
+                        href="https://aws.amazon.com/polly/features/#Wide_Selection_of_Voices_and_Languages"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Polly
+                      </a>
+                      )
+                    </TextareaLabel>
                     <DropdownField
                       itemList={voiceList}
                       selectedItem={selectedVoice}
@@ -250,7 +331,17 @@ export default function RobotProfileCreationCard({
                     />
                   </Col>
                   <Col style={{ padding: '0 1em' }}>
-                    <TextareaLabel>Model</TextareaLabel>
+                    <TextareaLabel>
+                      Model (
+                      <a
+                        href="https://platform.openai.com/docs/models/overview"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        OpenAI
+                      </a>
+                      )
+                    </TextareaLabel>
                     <DropdownField
                       itemList={modelList}
                       selectedItem={selectedModel}
@@ -266,7 +357,7 @@ export default function RobotProfileCreationCard({
                   type="textarea"
                   value={description}
                   placeholder="Description for the robot"
-                  style={{ height: '6vh', maxHeight: '6vh' }}
+                  style={{ height: '6vh', maxHeight: '6vh', scroll: 'auto' }}
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </FormGroup>
@@ -302,7 +393,7 @@ export default function RobotProfileCreationCard({
               {defaultStatus === 'UPDATE' && uploadStatus === 'UPDATE' && (
                 <Col style={{ padding: '0 0 0 1em' }}>
                   <Button
-                    onClick={handleDelete}
+                    onClick={handleDeleteProfile}
                     style={{ width: '100%', margin: '0em' }}
                     color="warning"
                   >
@@ -321,7 +412,11 @@ export default function RobotProfileCreationCard({
                     style={{ width: '100%', margin: '0em' }}
                     color="primary"
                     type="submit"
-                    onClick={handleSubmit}
+                    onClick={
+                      uploadStatus === 'UPDATE'
+                        ? handleUpdateProfile
+                        : handleAddProfile
+                    }
                   >
                     {uploadStatus}
                   </Button>

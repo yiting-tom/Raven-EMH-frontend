@@ -11,10 +11,18 @@ import {
 export const RobotProfilesContext = createContext();
 
 export const RobotProfilesProvider = ({ children }) => {
-  const [robotProfiles, setRobotProfiles] = useState([]);
+  const [robotProfiles, setRobotProfiles] = useState({});
+  const [index2IdMapping, setIndex2IdMapping] = useState({}); // { index: id }
+
   async function fetchRobotProfiles() {
     const profiles = await getRobotProfiles();
     setRobotProfiles(profiles);
+
+    const mapping = {};
+    Object.entries(profiles).forEach(([index, profile]) => {
+      mapping[index] = profile.id;
+    });
+    setIndex2IdMapping(mapping);
   }
 
   // Load all robot profiles initially
@@ -23,8 +31,8 @@ export const RobotProfilesProvider = ({ children }) => {
   }, []);
 
   // CRUD operations
-  const addRobotProfile = useCallback(async (profile) => {
-    await createRobotProfile(profile);
+  const addRobotProfile = useCallback(async (profile, profileId) => {
+    await createRobotProfile(profile, profileId);
     // Refresh profiles after adding
     const profiles = await getRobotProfiles();
     setRobotProfiles(profiles);
@@ -52,6 +60,7 @@ export const RobotProfilesProvider = ({ children }) => {
     <RobotProfilesContext.Provider
       value={{
         robotProfiles,
+        index2IdMapping,
         addRobotProfile,
         getProfile,
         modifyRobotProfile,

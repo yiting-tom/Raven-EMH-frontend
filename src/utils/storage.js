@@ -3,12 +3,18 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  deleteObject,
 } from 'firebase/storage';
 
 const storage = getStorage(); // Initialize Firebase Storage
 
-export async function uploadImage(imageFile, imageName, setProgress) {
-  const storageRef = ref(storage, 'images/' + imageName);
+export async function uploadImage(
+  imageFile,
+  folderName,
+  imageName,
+  setProgress,
+) {
+  const storageRef = ref(storage, `images/${folderName}/${imageName}`);
   const uploadTask = uploadBytesResumable(storageRef, imageFile);
 
   return new Promise((resolve, reject) => {
@@ -32,4 +38,19 @@ export async function uploadImage(imageFile, imageName, setProgress) {
       },
     );
   });
+}
+
+export async function deleteImage(folderName, imageName) {
+  const storage = getStorage();
+  const imageRef = ref(storage, `images/${folderName}${imageName}`);
+
+  return deleteObject(imageRef)
+    .then(() => {
+      console.log('Image deleted successfully!');
+      return true;
+    })
+    .catch((error) => {
+      console.error('Error deleting image: ', error);
+      return false;
+    });
 }

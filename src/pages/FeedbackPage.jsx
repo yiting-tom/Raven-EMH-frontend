@@ -6,10 +6,10 @@ import { FadeLoader } from 'react-spinners';
 import { Button, CardText, Form } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import { fetchFeedbacksByUserId, updateFeedback } from 'api/feedback';
-import Conversation from 'components/Conversation/Conversation';
-import UserSelector from 'components/UserSelector/UserSelector';
-import { color } from 'style';
+import { fetchFeedbacksByUserId, updateFeedback } from '../api/feedback';
+import Conversation from '../components/Conversation/Conversation';
+import UserSelector from '../components/UserSelector/UserSelector';
+import { color } from '../style';
 
 const FeedbacksContainer = styled(animated.div)`
   margin: 2em auto;
@@ -30,6 +30,8 @@ const ConversationContainer = styled.div`
   flex-direction: column;
 `;
 
+// TODO: submit error
+// TODO: refetch feedbacks after submit
 const FeedbackPage = () => {
   const [started, setStarted] = useState(false);
   const [curIdx, setCurIdx] = useState(0);
@@ -70,7 +72,7 @@ const FeedbackPage = () => {
     e.preventDefault();
     const submitAllFeedbacks = async () => {
       Object.entries(submitMap).forEach(async ([key, value]) => {
-        await updateFeedback(key, value);
+        await updateFeedback(key, value[0]);
       });
     };
     submitAllFeedbacks();

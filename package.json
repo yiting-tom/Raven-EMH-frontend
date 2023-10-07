@@ -45,7 +45,8 @@
     "sass": "1.62.1",
     "styled-components": "^6.0.7",
     "transition-hook": "^1.5.2",
-    "typewriter-effect": "^2.20.1"
+    "typewriter-effect": "^2.20.1",
+    "uuid": "^9.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

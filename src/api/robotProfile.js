@@ -12,18 +12,20 @@ import {
 const db = getFirestore();
 const robotProfilesCollectionRef = collection(db, 'robotProfiles');
 
-export async function createRobotProfile(profile) {
-  const docRef = doc(robotProfilesCollectionRef, profile.name);
+export async function createRobotProfile(profile, profileId) {
+  const docRef = doc(robotProfilesCollectionRef, profileId);
   console.debug('Adding document with ID: ', profile.name);
   await setDoc(docRef, profile);
 }
 
-// Read all documents in a collection, and return an array
+// Read all documents in a collection, and return an object with the document ID as the key
 export async function getRobotProfiles() {
   const querySnapshot = await getDocs(robotProfilesCollectionRef);
-  const results = querySnapshot.docs.map((doc) => doc.data());
-  console.debug('All documents in the collection: ', results);
-  return results;
+  const robotProfiles = {};
+  querySnapshot.forEach((doc) => {
+    robotProfiles[doc.id] = doc.data();
+  });
+  return robotProfiles;
 }
 
 // Read a specific document

@@ -1,42 +1,43 @@
 import axios from 'axios';
 
-import { baseUrl } from './base';
+import { baseURL } from './base';
 
-export async function fetchAllChatsByUserId(userId) {
-  console.debug('Fetching all chats for user:', userId);
+export async function fetchAllChatsByUserIdAndRobotId(userId, robotId) {
+  console.debug(
+    `Fetching all chats for user: "${userId}" with robot "${robotId}"`,
+  );
   try {
-    console.log(`fetching ${baseUrl}/chat/user/${userId}`);
-
-    const response = await axios.get(`${baseUrl}/chat/user/${userId}`);
-
-    // Return the chat data
+    const response = await axios.get(`${baseURL}/chat/`, {
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      params: {
+        user_id: userId,
+        robot_id: robotId,
+      },
+    });
+    console.debug('response.data:', response.data);
     return response.data;
-  } catch (err) {
-    // Log and re-throw the error to be handled by the caller
-    console.error('Error fetching chats for user:', userId, err);
+  } catch (error) {
+    console.error('An error occurred while making the request', error);
   }
 }
 
 export async function sendChatMessage(chatData, robotProfile) {
-  console.debug('Sending chat data:', chatData);
-  console.debug('Sending robot profile:', robotProfile);
+  const request = {
+    chat_data: chatData,
+    robot_profile: robotProfile,
+  };
+  console.debug('Sending chat message:', request);
   try {
-    const response = await axios.post(
-      `${baseUrl}/chat`,
-      {
-        chat_data: chatData,
-        robot_profile: robotProfile,
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-
-    if (response.status === 200) {
-      return response.data;
-    }
+    const response = await axios.post(`${baseURL}/chat`, request, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.debug('response.data:', response.data);
+    return response.data;
   } catch (err) {
     // Log and re-throw the error to be handled by the caller
-    console.error('Error sending chat message:', chatData, err);
+    console.error('Error sending chat message:', request, err);
   }
 }
