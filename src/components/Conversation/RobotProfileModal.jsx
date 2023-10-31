@@ -99,8 +99,28 @@ export default function RobotProfileModal({
                   workflow.length > 0 &&
                   workflow.map((flow, idx) => (
                     <>
-                      <p key={idx}>{flow}</p>
-                      <hr />
+                      {idx === 0 ? (
+                        <p key={idx}>
+                          <span>
+                            Dialog: <br />
+                          </span>
+                          {/* split with text Dialog: and \n */}
+                          {flow
+                            .split('Dialog: ')[1]
+                            .split('\n')
+                            .map((line, idx) => (
+                              <span key={idx}>
+                                {line}
+                                <br />
+                              </span>
+                            ))}
+                        </p>
+                      ) : (
+                        <>
+                          <hr />
+                          <p key={idx}>{flow}</p>
+                        </>
+                      )}
                     </>
                   ))}
               </div>

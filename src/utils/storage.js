@@ -46,7 +46,7 @@ export async function deleteImage(folderName, imageName) {
 
   return deleteObject(imageRef)
     .then(() => {
-      console.log('Image deleted successfully!');
+      console.info('Image deleted successfully!');
       return true;
     })
     .catch((error) => {

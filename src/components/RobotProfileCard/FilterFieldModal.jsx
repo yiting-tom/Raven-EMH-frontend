@@ -114,7 +114,14 @@ export default function FilterFieldModal({
         <br />
 
         <Label for="filterPrompt">
-          Filter Prompt <a href="#">(please reference this doc)</a>
+          Filter Prompt{' '}
+          <a
+            href="https://hackmd.io/@7Y70YnnOSr249wjiLZCyPQ/H1yZraMWT"
+            target="_blank"
+            rel="noreferrer"
+          >
+            (Introduction to the Filter Editor)
+          </a>
         </Label>
         <Input
           type="textarea"
