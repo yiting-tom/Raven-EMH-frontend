@@ -248,7 +248,6 @@ export default function RobotProfileCreationCard({
       filters: filters,
     };
     setUploadStatus('Uploading profile...');
-    console.log('robotProfile', robotProfile);
     try {
       await modifyRobotProfile(originalId, robotProfile);
     } catch (error) {

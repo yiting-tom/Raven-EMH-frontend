@@ -62,11 +62,6 @@ export const AuthProvider = ({ children }) => {
     });
   }, [auth]);
 
-  useEffect(() => {
-    console.log('currentUser:', currentUser);
-    console.log('userRole:', userRole);
-  }, [currentUser, userRole]);
-
   if (pending) {
     return <>Loading...</>;
   }

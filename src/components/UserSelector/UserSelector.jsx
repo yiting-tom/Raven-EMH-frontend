@@ -105,7 +105,6 @@ const UserSelector = ({ setUserId, setCurIdx }) => {
     const selectedItem = results[activeIndex].item;
     setQuery(selectedItem.displayName);
     setUserId(selectedItem.localId);
-    console.log('HandleSubmit:', selectedItem.localId);
     setActiveIndex(0);
     setResults([]);
     setDropdownIsToggle(false);
