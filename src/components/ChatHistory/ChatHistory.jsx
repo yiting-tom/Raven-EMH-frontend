@@ -5,6 +5,7 @@ import { TypeAnimation } from 'react-type-animation';
 import { Card, CardBody, Button, CardHeader, Col } from 'reactstrap';
 import { styled } from 'styled-components';
 
+import AudioPlayerButton from './AudioPlayerButton';
 import PopupModel from './PopupModal';
 
 const DefaultMessage = styled(Col)`
@@ -18,6 +19,7 @@ const DefaultMessage = styled(Col)`
 const ChatHistory = ({ chats }) => {
   const [modalIsOpen, setIsOpen] = React.useState(false);
   const scrollbarRef = React.useRef(null);
+  console.warn('chats', chats);
 
   return (
     <>
@@ -53,7 +55,10 @@ const ChatHistory = ({ chats }) => {
                 </div>
               </CardHeader>
               <CardBody className="description">
-                {index >= chats.length - 1 ? (
+                {chat.audio_base64 && (
+                  <AudioPlayerButton base64Audio={chat.audio_base64} />
+                )}
+                {index == chats.length - 1 ? (
                   <TypeAnimation
                     sequence={[chat.response]}
                     wrapper="span"
