@@ -11,6 +11,7 @@ export async function fetchAllChatsByUserIdAndRobotId(userId, robotId) {
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json',
+
       },
       params: {
         user_id: userId,
