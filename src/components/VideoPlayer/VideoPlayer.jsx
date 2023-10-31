@@ -99,7 +99,7 @@ const VideoPlayer = ({
 
   const handlePlaying = () => {
     if (videoUrl === null) return;
-    setPlayerState(playerState === 'playing' ? 'paused' : 'playing');
+    // setPlayerState(playerState === 'playing' ? 'paused' : 'playing');
   };
 
   useEffect(() => {
@@ -123,7 +123,7 @@ const VideoPlayer = ({
   return (
     <>
       <VideoPlayerContainer>
-        {videoUrl === null ? (
+        {true ? (
           <animated.img
             src={imageURL}
             style={avatarSpring}

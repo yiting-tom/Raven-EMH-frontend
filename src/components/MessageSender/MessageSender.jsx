@@ -6,8 +6,9 @@ import { RiseLoader } from 'react-spinners';
 import { Button, Col, Input, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import SpeechRecognizer from 'components/SpeechRecognizer/SpeechRecognizer';
 import { devices } from 'style';
+
+import SpeechRecognizer from '../../components/SpeechRecognizer/SpeechRecognizer';
 
 const MessageSenderContainer = styled.div`
   /* display: flex; */
@@ -82,6 +83,7 @@ const MessageSender = ({
   };
 
   useHotkeys('ctrl+enter', handleSubmit, [message]);
+  useHotkeys('meta+enter', handleSubmit, [message]);
 
   return (
     <MessageSenderContainer className="">
