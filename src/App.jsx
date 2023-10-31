@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import AuthPage from 'pages/AuthPage';
 import NotFoundPage from 'pages/NotFoundPage';
 
+import { checkConnection } from './api/base';
 import { AuthContext } from './contexts/AuthContext';
 import Admin from './layouts/AdminLayout/AdminLayout';
 import Doctor from './layouts/DoctorLayout/DoctorLayout';
@@ -35,6 +36,21 @@ function NavigationManager() {
     }
     navigate('/auth', { replace: true });
   }, [currentUser]);
+
+  // Check the connection to the server, if it is not connected, pop up a message
+  useEffect(() => {
+    const checkServerConnection = async () => {
+      const isConnected = await checkConnection();
+      if (!isConnected) {
+        alert(
+          'Server is not connected! Please make sure the server is running.' +
+            'You still can use the app, but some features may not work.' +
+            'If you are the admin, please check the server at https://console.cloud.google.com/compute/instances?project=emh-prototype',
+        );
+      }
+    };
+    checkServerConnection();
+  }, []);
 
   return null; // this component does not render anything
 }
