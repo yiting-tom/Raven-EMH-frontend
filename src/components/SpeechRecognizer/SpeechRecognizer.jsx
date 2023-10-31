@@ -1,32 +1,34 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BiPlus } from 'react-icons/bi';
 import { BsMic } from 'react-icons/bs';
 import { MdKeyboardCommandKey } from 'react-icons/md';
 import { ScaleLoader } from 'react-spinners';
+import { Button } from 'reactstrap';
+import { styled } from 'styled-components';
 
-import { SendButton } from 'components/MessageSender/MessageSender';
+export const ButtonContainer = styled(Button)`
+  font-size: 1.2em;
+  width: 100%;
+  height: 100%;
+  &.send-button {
+    margin: auto;
+    padding: 0.3em;
+  }
+`;
 
 const SpeechRecognizer = ({
-  start,
   setStart,
   status,
-  setStatus,
-  message,
   setMessage,
-  videoUrl,
-  setVideoUrl,
-  chats,
-  setChats,
   playerState,
-  setPlayerState,
   transcript,
   listening,
   browserSupportsSpeechRecognition,
   handleListening,
 }) => {
   useHotkeys('ctrl+v', () => handleListening(!listening));
+  useHotkeys('meta+v', () => handleListening(!listening));
 
   useEffect(() => {
     setMessage(transcript);
@@ -34,23 +36,22 @@ const SpeechRecognizer = ({
 
   if (!browserSupportsSpeechRecognition) {
     return (
-      <SendButton
+      <ButtonContainer
         disabled
         className="send-button"
         style={{ fontSize: '0.8em', color: 'white' }}
       >
         Browser does not support speech recognition.
-      </SendButton>
+      </ButtonContainer>
     );
   }
 
   return (
-    <SendButton
+    <ButtonContainer
       className="send-button"
-      disabled={status === 'sending' || playerState === 'playing'}
+      disabled={status === 'sending'}
       onClick={() => {
-        if (browserSupportsSpeechRecognition) handleListening(!listening);
-        setStart(true);
+        handleListening(!listening);
       }}
     >
       {listening ? (
@@ -69,7 +70,7 @@ const SpeechRecognizer = ({
           </span>
         </>
       )}
-    </SendButton>
+    </ButtonContainer>
   );
 };
 

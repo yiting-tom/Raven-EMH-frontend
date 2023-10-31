@@ -15,6 +15,7 @@ import BackgroundColorWrapper from './components/BackgroundColorWrapper/Backgrou
 import ThemeContextWrapper from './components/ThemeWrapper/ThemeWrapper';
 import 'index.css';
 import { AuthProvider } from './contexts/AuthContext';
+import { RobotProfilesProvider } from './contexts/RobotProfilesContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -22,7 +23,9 @@ root.render(
   <ThemeContextWrapper>
     <BackgroundColorWrapper>
       <AuthProvider>
-        <App />
+        <RobotProfilesProvider>
+          <App />
+        </RobotProfilesProvider>
       </AuthProvider>
     </BackgroundColorWrapper>
   </ThemeContextWrapper>,

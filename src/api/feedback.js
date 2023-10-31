@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-import { baseUrl } from './base';
+import { baseURL } from './base';
 import { getAccessToken } from '../utils/auth';
 
 export async function fetchFeedbacksByUserId(userId) {
   console.debug('Fetching feedbacks for user:', userId);
   const token = await getAccessToken();
   try {
-    const response = await axios.get(`${baseUrl}/feedback/user/${userId}`, {
+    const response = await axios.get(`${baseURL}/feedback/user_id/${userId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -23,7 +23,7 @@ export async function fetchFeedbacksByUserId(userId) {
 export async function fetchAllUsers() {
   const token = await getAccessToken();
   try {
-    const response = await axios.get(`${baseUrl}/user`, {
+    const response = await axios.get(`${baseURL}/user`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -36,14 +36,14 @@ export async function fetchAllUsers() {
   }
 }
 
-export async function updateFeedback(feedbackId, annotations) {
-  console.debug('Updating feedback:', feedbackId);
+export async function updateFeedback(feedbackId, annotation) {
+  console.debug(`Updating feedback '${feedbackId}': `, annotation);
   const token = await getAccessToken();
   try {
     const response = await axios.put(
-      `${baseUrl}/feedback/${feedbackId}`,
+      `${baseURL}/feedback/${feedbackId}`,
       {
-        annotations: annotations,
+        annotation: annotation,
       },
       {
         headers: {

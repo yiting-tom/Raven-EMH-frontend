@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * @file EMHRobots.tsx
  * @author Yi-Ting Li <yitingli.public@gmail.com>
@@ -6,24 +5,45 @@
  */
 
 import { useSpring, animated } from '@react-spring/web';
+import { Carousel } from '@trendyol-js/react-carousel';
 import React, { useEffect, useState, useContext } from 'react';
+import { BiLeftArrow, BiRightArrow } from 'react-icons/bi';
+import { Rings } from 'react-loader-spinner';
 import SpeechRecognition, {
   useSpeechRecognition,
 } from 'react-speech-recognition';
 import { BarLoader } from 'react-spinners';
-import { Card } from 'reactstrap';
+import { Card, Modal } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import { sendChatMessage, fetchAllChatsByUserId } from 'api/chat';
-import ChatHistory from 'components/ChatHistory/ChatHistory';
-import MessageSender from 'components/MessageSender/MessageSender';
-import VideoPlayer from 'components/VideoPlayer/VideoPlayer';
 import { usePrevious } from 'hooks/usePrevious';
 import { color } from 'style';
 import { useMediaQuery } from 'utils/animation';
 import { base64ToBlobUrl } from 'utils/converter';
 
+import { sendChatMessage, fetchAllChatsByUserIdAndRobotId } from '../api/chat';
+import ChatHistory from '../components/ChatHistory/ChatHistory';
+import MessageSender from '../components/MessageSender/MessageSender';
+import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobotProfileCard';
+import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import { AuthContext } from '../contexts/AuthContext';
+import { RobotProfilesContext } from '../contexts/RobotProfilesContext';
+import { detectBrowser } from '../utils/browser';
+
+const CarouselModal = styled(Modal)`
+  border-radius: 1em;
+  max-width: 100vw;
+  max-width: 1024px;
+  width: 100vw;
+  box-shadow: none;
+  .modal-content {
+    @media (min-width: 992px) {
+      left: 16.5%;
+    }
+    background-color: transparent;
+    border-radius: 1em;
+  }
+`;
 
 const EMHRobotContainer = styled.div`
   margin: 0 auto;
@@ -52,6 +72,12 @@ function EMHRobotPage() {
   const [chats, setChats] = useState([]);
   const [videoUrl, setVideoUrl] = useState(null);
   const [message, setMessage] = useState('');
+  const { robotProfiles } = useContext(RobotProfilesContext);
+  const [selectedRobotId, setSelectedRobotId] = useState(
+    Object.keys(robotProfiles)[0],
+  );
+  const [isFetchingRobotsProfiles, setIsFetchingRobotsProfiles] =
+    useState(true);
 
   // State for message sender & speech recognizer
   const [start, setStart] = useState(false);
@@ -59,10 +85,14 @@ function EMHRobotPage() {
   const prevStatus = usePrevious(status);
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const [browserIsChrome, setBrowserIsChrome] = useState(false);
+
+  useEffect(() => {
+    setBrowserIsChrome(detectBrowser() === 'Chrome');
+  }, []);
 
   // State for video player
   const [playerState, setPlayerState] = useState('idle'); // idle, playing, paused, ended
-  const prevPlayerState = usePrevious(playerState);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // State for EMHRobot
@@ -78,10 +108,12 @@ function EMHRobotPage() {
     margin: isFullscreen ? '0' : '1em auto',
   });
   const { currentUser } = useContext(AuthContext);
+  const [toggle, setToggle] = useState(false);
 
   // Handler
   // Handler for MessageSender.SpeechRecognizer
   const handleListening = (listeningState) => {
+    console.log(`handleListening.status: ${listeningState}`);
     if (listeningState) {
       SpeechRecognition.startListening();
       setStatus('listening');
@@ -91,25 +123,41 @@ function EMHRobotPage() {
     }
   };
 
-  // Fetch all chats from database at the beginning
+  useEffect(() => {
+    console.warn(`listening: ${listening}`);
+  }, [listening]);
+
+  // Fetch all chats from database when selected robot is changed
   useEffect(() => {
     const userId = currentUser.uid;
     const fetchChats = async () => {
-      const data = await fetchAllChatsByUserId(userId);
+      const data = await fetchAllChatsByUserIdAndRobotId(
+        userId,
+        selectedRobotId,
+      );
+      setIsFetchingChats(false);
       if (!data) return;
       setChats(data);
 
       // Transform the last chat's video to blob url
       const lastChat = data[data.length - 1];
-      if (lastChat) {
-        const videoUrl = base64ToBlobUrl(lastChat.video);
+      if (lastChat && lastChat.video_base64) {
+        const videoUrl = base64ToBlobUrl(lastChat.video_base64);
         setVideoUrl(videoUrl);
+      } else {
+        setVideoUrl(null);
       }
-      setIsFetchingChats(false);
     };
 
     fetchChats();
-  }, []);
+  }, [selectedRobotId]);
+
+  useEffect(() => {
+    if (Object.keys(robotProfiles).length > 0) {
+      setIsFetchingRobotsProfiles(false);
+    }
+    setSelectedRobotId(Object.keys(robotProfiles)[0]);
+  }, [robotProfiles]);
 
   // Send the message to the backend and update the chats and videoRul states.
   const sendMessageFn = async () => {
@@ -123,62 +171,33 @@ function EMHRobotPage() {
     setStatus('sending');
 
     // Send the message to the backend
-    const fetchedChats = await sendChatMessage(
-      userId,
-      username,
-      message,
-      parentId,
+    const history = chats.reduce((accumulator, chat) => {
+      return accumulator.concat([chat.request, chat.response]);
+    }, []);
+
+    const chatResponse = await sendChatMessage(
+      {
+        user_id: userId,
+        parent_id: parentId,
+        username: username,
+        message: message,
+        history: history,
+      },
+      {
+        robot_id: selectedRobotId,
+        ...robotProfiles[selectedRobotId],
+      },
     );
 
-    // Update the chats state by adding the new chat
-    setChats([...chats, fetchedChats]);
-
     // Transform the last chat's video to blob url
-    const lastChat = fetchedChats;
+    const lastChat = chatResponse;
     if (lastChat) {
-      const videoUrl = base64ToBlobUrl(lastChat.video);
+      const videoUrl = base64ToBlobUrl(lastChat.video_base64);
       setVideoUrl(videoUrl);
-    }
-
-    // Set status to 'idle'
-    setStatus('idle');
-  };
-
-  // If not listening, set status to 'idle'
-  useEffect(() => {
-    if (browserSupportsSpeechRecognition && !listening) setStatus('idle');
-  }, [listening]);
-
-  const afterRecognition = async () => {
-    // keep listening
-    if (
-      browserSupportsSpeechRecognition &&
-      message.length < 4 &&
-      prevStatus === 'listening' &&
-      status === 'idle'
-    ) {
-      handleListening(true);
-      setStatus('listening');
-      setPlayerState('paused');
-      return;
-    }
-    // send message to backend
-    if (
-      browserSupportsSpeechRecognition &&
-      message.length >= 2 &&
-      prevStatus === 'listening' &&
-      status === 'idle'
-    ) {
-      handleListening(false);
-      sendMessageFn();
-      return;
+      // Update the chats state by adding the new chat
+      setChats([...chats, lastChat]);
     }
   };
-
-  // After recognizing the speech
-  useEffect(() => {
-    afterRecognition();
-  }, [status]);
 
   // Pause the video when the message is being sent or the user is speaking
   useEffect(() => {
@@ -187,74 +206,149 @@ function EMHRobotPage() {
     }
   }, [listening]);
 
-  useEffect(() => {
-    if (
-      browserSupportsSpeechRecognition &&
-      start &&
-      playerState === 'ended' &&
-      status === 'idle'
-    ) {
-      handleListening(true);
-    }
-  }, [playerState]);
-
   return (
     <EMHRobotContainer className="content">
-      <AvatarContainer className="card-user">
-        <div className="author">
-          <div className="block block-one" />
-          <div className="block block-two" />
-          <div className="block block-three" />
-          <div className="block block-four" />
+      {isFetchingRobotsProfiles &&
+      robotProfiles[selectedRobotId] &&
+      robotProfiles[selectedRobotId].imageURL ? (
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '60vh',
+          }}
+        >
+          <Rings
+            height="30vh"
+            width="30vh"
+            color={color.primaryA(0.6)}
+            radius="6"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+            ariaLabel="rings-loading"
+          />
+          <h1>Fetching Data...</h1>
         </div>
-        <VideoPlayer
-          start={start}
-          setStart={setStart}
-          videoUrl={videoUrl}
-          playerState={playerState}
-          setPlayerState={setPlayerState}
-          isFullscreen={isFullscreen}
-          setIsFullscreen={setIsFullscreen}
-        />
-      </AvatarContainer>
-
-      <ChatHistoryContainer style={historySpring}>
-        {isFetchingChats ? (
-          <div style={{ margin: 'auto', width: '24vw' }}>
-            <BarLoader
-              color={color.primaryA(0.6)}
-              height={'0.5em'}
-              width={'100%'}
-              speedMultiplier={0.3}
+      ) : (
+        <>
+          <AvatarContainer className="card-user">
+            <div className="author">
+              <div className="block block-one" />
+              <div className="block block-two" />
+              <div className="block block-three" />
+              <div className="block block-four" />
+            </div>
+            <VideoPlayer
+              imageURL={
+                robotProfiles[selectedRobotId] &&
+                robotProfiles[selectedRobotId].imageURL
+              }
+              start={start}
+              setStart={setStart}
+              videoUrl={videoUrl}
+              playerState={playerState}
+              setPlayerState={setPlayerState}
+              isFullscreen={isFullscreen}
+              setIsFullscreen={setIsFullscreen}
+              setToggle={setToggle}
             />
-          </div>
-        ) : (
-          <ChatHistory chats={chats} />
-        )}
-      </ChatHistoryContainer>
+          </AvatarContainer>
 
-      <MessageSenderContainer>
-        <MessageSender
-          start={start}
-          setStart={setStart}
-          status={status}
-          setStatus={setStatus}
-          prevStatus={prevStatus}
-          message={message}
-          setMessage={setMessage}
-          sendMessageFn={sendMessageFn}
-          videoUrl={videoUrl}
-          setVideoUrl={setVideoUrl}
-          chats={chats}
-          setChats={setChats}
-          playerState={playerState}
-          setPlayerState={setPlayerState}
-          transcript={transcript}
-          listening={listening}
-          browserSupportsSpeechRecognition={browserSupportsSpeechRecognition}
-          handleListening={handleListening}
-        />
-      </MessageSenderContainer>
+          <ChatHistoryContainer style={historySpring}>
+            {isFetchingChats ? (
+              <div style={{ margin: 'auto', width: '24vw' }}>
+                <BarLoader
+                  color={color.primaryA(0.6)}
+                  height={'0.5em'}
+                  width={'100%'}
+                  speedMultiplier={0.3}
+                />
+              </div>
+            ) : (
+              <ChatHistory chats={chats} />
+            )}
+          </ChatHistoryContainer>
+
+          <MessageSenderContainer>
+            <MessageSender
+              isFetchingChats={!isFetchingChats}
+              start={start}
+              setStart={setStart}
+              status={status}
+              setStatus={setStatus}
+              prevStatus={prevStatus}
+              message={message}
+              setMessage={setMessage}
+              sendMessageFn={sendMessageFn}
+              videoUrl={videoUrl}
+              setVideoUrl={setVideoUrl}
+              chats={chats}
+              setChats={setChats}
+              playerState={playerState}
+              setPlayerState={setPlayerState}
+              transcript={transcript}
+              listening={listening}
+              browserSupportsSpeechRecognition={
+                browserSupportsSpeechRecognition && browserIsChrome
+              }
+              handleListening={handleListening}
+            />
+          </MessageSenderContainer>
+
+          <CarouselModal isOpen={toggle} toggle={() => setToggle(!toggle)}>
+            <div
+              style={{
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                borderRadius: '1em',
+              }}
+            >
+              <h1
+                style={{
+                  textAlign: 'center',
+                  paddingTop: '0.6em',
+                  marginBottom: '-0.5em',
+                }}
+              >
+                Choose your EMH Robot
+              </h1>
+              <Carousel
+                dynamic={true}
+                show={3}
+                slide={1}
+                swiping={true}
+                rightArrow={
+                  <BiRightArrow
+                    size="2em"
+                    type="button"
+                    style={{ height: '100%', margin: '0 1em' }}
+                  />
+                }
+                leftArrow={
+                  <BiLeftArrow
+                    size="2em"
+                    type="button"
+                    style={{ height: '100%', margin: '0 1em' }}
+                  />
+                }
+              >
+                {Object.entries(robotProfiles).map(([profileId, robot]) => (
+                  <DisplayRobotProfileCard
+                    onClick={() => {
+                      setSelectedRobotId(profileId);
+                    }}
+                    {...robot}
+                    key={profileId}
+                    selected={profileId === selectedRobotId}
+                  />
+                ))}
+              </Carousel>
+            </div>
+          </CarouselModal>
+        </>
+      )}
     </EMHRobotContainer>
   );
 }

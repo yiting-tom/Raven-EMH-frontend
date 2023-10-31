@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import PerfectScrollbar from 'perfect-scrollbar';
 import React from 'react';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom';

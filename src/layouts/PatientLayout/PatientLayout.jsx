@@ -1,20 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import PerfectScrollbar from 'perfect-scrollbar';
-import React, { useEffect } from 'react';
-import {
-  Route,
-  Routes,
-  Navigate,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import React from 'react';
+import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 
 import logo from 'assets/img/favicon.png';
 import FixedPlugin from 'components/FixedPlugin/FixedPlugin.js';
 // import PatientNavbar from 'components/Navbars/PatientNavbar';
 import BaseNavbar from 'components/Navbars/BaseNavbar';
 import Sidebar from 'components/Sidebar/Sidebar.js';
-import { AuthContext } from 'contexts/AuthContext';
 import { BackgroundColorContext } from 'contexts/BackgroundColorContext';
 // core components
 // import Footer from "components/Footer/Footer.js";

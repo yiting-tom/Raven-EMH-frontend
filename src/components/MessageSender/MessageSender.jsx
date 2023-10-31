@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BiPlus, BiSend } from 'react-icons/bi';
 import { MdKeyboardCommandKey, MdKeyboardReturn } from 'react-icons/md';
 import { RiseLoader } from 'react-spinners';
-import { Button, Input, Row, Col } from 'reactstrap';
+import { Button, Col, Input, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import SpeechRecognizer from 'components/SpeechRecognizer/SpeechRecognizer';
 import { devices } from 'style';
+
+import SpeechRecognizer from '../../components/SpeechRecognizer/SpeechRecognizer';
 
 const MessageSenderContainer = styled.div`
   /* display: flex; */
@@ -28,6 +28,7 @@ export const SendButton = styled(Button)`
     padding: 0.3em;
   }
 `;
+
 const UserInputArea = styled(Input)`
   font-size: 1em;
   width: 100%;
@@ -47,6 +48,7 @@ const ButtonCol = styled(Col)`
 `;
 
 const MessageSender = ({
+  isFetchingChats,
   start,
   setStart,
   status,
@@ -54,7 +56,6 @@ const MessageSender = ({
   message,
   setMessage,
   sendMessageFn,
-  prevStatus,
   videoUrl,
   setVideoUrl,
   chats,
@@ -82,6 +83,7 @@ const MessageSender = ({
   };
 
   useHotkeys('ctrl+enter', handleSubmit, [message]);
+  useHotkeys('meta+enter', handleSubmit, [message]);
 
   return (
     <MessageSenderContainer className="">

@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { animated, useSpring } from '@react-spring/web';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Fullscreen,
   FullscreenExit,
@@ -12,7 +11,6 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { Button, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
-import Avatar from 'assets/img/avatar.png';
 import { useMediaQuery } from 'utils/animation';
 
 const VideoPlayerContainer = styled.div`
@@ -39,19 +37,20 @@ const ControlButton = styled(Button)`
  */
 const VideoPlayer = ({
   start,
-  setStart,
   videoUrl,
   playerState,
   setPlayerState,
   isFullscreen,
   setIsFullscreen,
+  setToggle,
+  imageURL,
 }) => {
   const playerRef = React.useRef(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
   const avatarSpring = useSpring({
     height: !isFullscreen ? '216px' : isMobile ? '400px' : '600px',
     width: !isFullscreen ? '220px' : isMobile ? '410px' : '600px',
-    marginTop: isFullscreen ? '2em' : '0em',
+    cursor: 'pointer',
     borderRadius: '1em',
     overflow: 'hidden',
   });
@@ -100,7 +99,7 @@ const VideoPlayer = ({
 
   const handlePlaying = () => {
     if (videoUrl === null) return;
-    setPlayerState(playerState === 'playing' ? 'paused' : 'playing');
+    // setPlayerState(playerState === 'playing' ? 'paused' : 'playing');
   };
 
   useEffect(() => {
@@ -124,10 +123,14 @@ const VideoPlayer = ({
   return (
     <>
       <VideoPlayerContainer>
-        {videoUrl === null ? (
-          <animated.img src={Avatar} style={avatarSpring} />
+        {true ? (
+          <animated.img
+            src={imageURL}
+            style={avatarSpring}
+            onClick={() => setToggle(true)}
+          />
         ) : (
-          <animated.div style={avatarSpring}>
+          <animated.div style={avatarSpring} onClick={() => setToggle(true)}>
             <video
               onEnded={() => setPlayerState('ended')}
               autoPlay={start}

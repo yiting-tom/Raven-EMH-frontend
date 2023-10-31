@@ -1,18 +1,14 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import Fuse from 'fuse.js';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { BiFilter } from 'react-icons/bi';
 import {
   Button,
-  ButtonGroup,
-  Col,
   Dropdown,
   DropdownMenu,
   DropdownToggle,
   Input,
   InputGroup,
-  Row,
 } from 'reactstrap';
 import { styled } from 'styled-components';
 
@@ -109,7 +105,6 @@ const UserSelector = ({ setUserId, setCurIdx }) => {
     const selectedItem = results[activeIndex].item;
     setQuery(selectedItem.displayName);
     setUserId(selectedItem.localId);
-    console.log('HandleSubmit:', selectedItem.localId);
     setActiveIndex(0);
     setResults([]);
     setDropdownIsToggle(false);

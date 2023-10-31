@@ -1,60 +1,44 @@
 import axios from 'axios';
 
-import { baseUrl } from './base';
+import { baseURL } from './base';
 
-export async function fetchAllChatsByUserId(userId) {
-  console.debug('Fetching all chats for user:', userId);
+export async function fetchAllChatsByUserIdAndRobotId(userId, robotId) {
+  console.debug(
+    `Fetching all chats for user: "${userId}" with robot "${robotId}"`,
+  );
   try {
-    console.log(`fetching ${baseUrl}/chat/user/${userId}`);
+    const response = await axios.get(`${baseURL}/chat/`, {
+      headers: {
+        accept: 'application/json',
+        'Content-Type': 'application/json',
 
-    const response = await axios.get(`${baseUrl}/chat/user/${userId}`);
-
-    // Return the chat data
+      },
+      params: {
+        user_id: userId,
+        robot_id: robotId,
+      },
+    });
+    console.debug('response.data:', response.data);
     return response.data;
-  } catch (err) {
-    // Log and re-throw the error to be handled by the caller
-    console.error('Error fetching chats for user:', userId, err);
-    return [];
+  } catch (error) {
+    console.error('An error occurred while making the request', error);
   }
 }
 
-export async function sendChatMessage(userId, username, message, parentId) {
-  console.debug(
-    'Sending chat message:',
-    message,
-    'for user:',
-    userId,
-    'with parent ID:',
-    parentId,
-    'and username:',
-    username,
-  );
+export async function sendChatMessage(chatData, robotProfile) {
+  const request = {
+    chat_data: chatData,
+    robot_profile: robotProfile,
+  };
+  console.debug('Sending chat message:', request);
   try {
-    const response = await axios.post(
-      `${baseUrl}/chat`,
-      {
-        chat: {
-          user_id: userId,
-          username: username ? username : 'Anonymous',
-          request: message,
-          parent_id: parentId,
-        },
-        format_dict: {
-          model_name: 'Alpha Noble',
-          model_personality:
-            'practical, sincere, talkative, thoughtful and considerate',
-        },
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-      },
-    );
-
-    if (response.status === 200) {
-      return response.data;
-    }
+    const response = await axios.post(`${baseURL}/chat`, request, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.debug('response.data:', response.data);
+    return response.data;
   } catch (err) {
     // Log and re-throw the error to be handled by the caller
-    console.error('Error sending chat message:', message, err);
+    console.error('Error sending chat message:', request, err);
   }
 }
