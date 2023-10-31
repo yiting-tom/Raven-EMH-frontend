@@ -4,6 +4,5 @@ package-lock.json
 /build
 .vscode
 .eslintcache
-.env
-.env.dev
-.firebase
+.env.*
+!.env.example
