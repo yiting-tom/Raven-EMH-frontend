@@ -28,6 +28,7 @@ import DisplayRobotProfileCard from '../components/RobotProfileCard/DisplayRobot
 import VideoPlayer from '../components/VideoPlayer/VideoPlayer';
 import { AuthContext } from '../contexts/AuthContext';
 import { RobotProfilesContext } from '../contexts/RobotProfilesContext';
+import { detectBrowser } from '../utils/browser';
 
 const CarouselModal = styled(Modal)`
   border-radius: 1em;
@@ -84,6 +85,11 @@ function EMHRobotPage() {
   const prevStatus = usePrevious(status);
   const { transcript, listening, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
+  const [browserIsChrome, setBrowserIsChrome] = useState(false);
+
+  useEffect(() => {
+    setBrowserIsChrome(detectBrowser() === 'Chrome');
+  }, []);
 
   // State for video player
   const [playerState, setPlayerState] = useState('idle'); // idle, playing, paused, ended
@@ -107,6 +113,7 @@ function EMHRobotPage() {
   // Handler
   // Handler for MessageSender.SpeechRecognizer
   const handleListening = (listeningState) => {
+    console.log(`handleListening.status: ${listeningState}`);
     if (listeningState) {
       SpeechRecognition.startListening();
       setStatus('listening');
@@ -115,6 +122,10 @@ function EMHRobotPage() {
       setStatus('idle');
     }
   };
+
+  useEffect(() => {
+    console.warn(`listening: ${listening}`);
+  }, [listening]);
 
   // Fetch all chats from database when selected robot is changed
   useEffect(() => {
@@ -145,6 +156,7 @@ function EMHRobotPage() {
     if (Object.keys(robotProfiles).length > 0) {
       setIsFetchingRobotsProfiles(false);
     }
+    setSelectedRobotId(Object.keys(robotProfiles)[0]);
   }, [robotProfiles]);
 
   // Send the message to the backend and update the chats and videoRul states.
@@ -185,46 +197,7 @@ function EMHRobotPage() {
       // Update the chats state by adding the new chat
       setChats([...chats, lastChat]);
     }
-
-    // Set status to 'idle'
-    setStatus('idle');
   };
-
-  // If not listening, set status to 'idle'
-  useEffect(() => {
-    if (browserSupportsSpeechRecognition && !listening) setStatus('idle');
-  }, [listening]);
-
-  const afterRecognition = async () => {
-    // keep listening
-    if (
-      browserSupportsSpeechRecognition &&
-      message.length < 1 &&
-      prevStatus === 'listening' &&
-      status === 'idle'
-    ) {
-      handleListening(true);
-      setStatus('listening');
-      setPlayerState('paused');
-      return;
-    }
-    // send message to backend
-    if (
-      browserSupportsSpeechRecognition &&
-      message.length > 0 &&
-      prevStatus === 'listening' &&
-      status === 'idle'
-    ) {
-      handleListening(false);
-      sendMessageFn();
-      return;
-    }
-  };
-
-  // After recognizing the speech
-  useEffect(() => {
-    afterRecognition();
-  }, [status]);
 
   // Pause the video when the message is being sent or the user is speaking
   useEffect(() => {
@@ -233,27 +206,18 @@ function EMHRobotPage() {
     }
   }, [listening]);
 
-  useEffect(() => {
-    if (
-      browserSupportsSpeechRecognition &&
-      start &&
-      playerState === 'ended' &&
-      status === 'idle'
-    ) {
-      handleListening(true);
-    }
-  }, [playerState]);
-
   return (
     <EMHRobotContainer className="content">
-      {isFetchingRobotsProfiles ? (
+      {isFetchingRobotsProfiles &&
+      robotProfiles[selectedRobotId] &&
+      robotProfiles[selectedRobotId].imageURL ? (
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            height: '60vh', // Adjust as needed
+            height: '60vh',
           }}
         >
           <Rings
@@ -328,7 +292,7 @@ function EMHRobotPage() {
               transcript={transcript}
               listening={listening}
               browserSupportsSpeechRecognition={
-                browserSupportsSpeechRecognition
+                browserSupportsSpeechRecognition && browserIsChrome
               }
               handleListening={handleListening}
             />
