@@ -6,3 +6,4 @@ package-lock.json
 .eslintcache
 .env.*
 !.env.example
+hosting.*.cache
