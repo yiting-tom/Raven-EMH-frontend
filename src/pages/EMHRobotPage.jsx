@@ -127,29 +127,27 @@ function EMHRobotPage() {
     console.warn(`listening: ${listening}`);
   }, [listening]);
 
+  const sendFetchChatsRequest = async () => {
+    const userId = currentUser.uid;
+    const data = await fetchAllChatsByUserIdAndRobotId(userId, selectedRobotId);
+
+    setIsFetchingChats(false);
+    if (!data) return;
+    setChats(data);
+
+    // Transform the last chat's video to blob url
+    const lastChat = data[data.length - 1];
+    if (lastChat && lastChat.video_base64) {
+      const videoUrl = base64ToBlobUrl(lastChat.video_base64);
+      setVideoUrl(videoUrl);
+    } else {
+      setVideoUrl(null);
+    }
+  };
+
   // Fetch all chats from database when selected robot is changed
   useEffect(() => {
-    const userId = currentUser.uid;
-    const fetchChats = async () => {
-      const data = await fetchAllChatsByUserIdAndRobotId(
-        userId,
-        selectedRobotId,
-      );
-      setIsFetchingChats(false);
-      if (!data) return;
-      setChats(data);
-
-      // Transform the last chat's video to blob url
-      const lastChat = data[data.length - 1];
-      if (lastChat && lastChat.video_base64) {
-        const videoUrl = base64ToBlobUrl(lastChat.video_base64);
-        setVideoUrl(videoUrl);
-      } else {
-        setVideoUrl(null);
-      }
-    };
-
-    fetchChats();
+    sendFetchChatsRequest();
   }, [selectedRobotId]);
 
   useEffect(() => {
@@ -268,7 +266,7 @@ function EMHRobotPage() {
                 />
               </div>
             ) : (
-              <ChatHistory chats={chats} />
+              <ChatHistory chats={chats} refetchChats={sendFetchChatsRequest} />
             )}
           </ChatHistoryContainer>
 

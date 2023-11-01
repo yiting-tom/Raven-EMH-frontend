@@ -11,7 +11,6 @@ export async function fetchAllChatsByUserIdAndRobotId(userId, robotId) {
       headers: {
         accept: 'application/json',
         'Content-Type': 'application/json',
-
       },
       params: {
         user_id: userId,
@@ -40,5 +39,19 @@ export async function sendChatMessage(chatData, robotProfile) {
   } catch (err) {
     // Log and re-throw the error to be handled by the caller
     console.error('Error sending chat message:', request, err);
+  }
+}
+
+export async function deleteChat(chat_id) {
+  console.debug('Deleting chat:', chat_id);
+  try {
+    const response = await axios.delete(`${baseURL}/chat/${chat_id}`, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    console.debug('response.data:', response.data);
+    return response.data;
+  } catch (err) {
+    // Log and re-throw the error to be handled by the caller
+    console.error('Error deleting chat:', chat_id, err);
   }
 }

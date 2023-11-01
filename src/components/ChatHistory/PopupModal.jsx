@@ -4,6 +4,8 @@ import { MdOutlineClose, MdOutlineCheck } from 'react-icons/md';
 import { CardBody, Button, Col, Row } from 'reactstrap';
 import { styled } from 'styled-components';
 
+import { deleteChat } from '../../api/chat';
+
 const ModalButton = styled(Button)`
   margin: 0 auto;
   padding: 0.5em 3em;
@@ -22,8 +24,9 @@ const PopupModalContainer = styled(animated.div)`
   color: white;
 `;
 
-const PopupModel = ({ modalIsOpen, setModalIsOpen }) => {
+const PopupModel = ({ chat_id, modalIsOpen, setModalIsOpen }) => {
   const [isVisible, setIsVisible] = useState(modalIsOpen);
+  const [chatId, setChatId] = useState(chat_id);
 
   const animation = useSpring({
     onRest: () => {
@@ -38,6 +41,16 @@ const PopupModel = ({ modalIsOpen, setModalIsOpen }) => {
 
   const closeModal = () => {
     setIsVisible(false); // Begin the fade-out
+  };
+
+  const sendDeleteRequest = async (chat_id) => {
+    return await deleteChat(chat_id);
+  };
+
+  const handleDeleteChat = () => {
+    console.debug('delete chat_id', chatId);
+    sendDeleteRequest(chatId);
+    closeModal();
   };
 
   // If modalIsOpen prop changes to true, make the modal visible
@@ -62,9 +75,11 @@ const PopupModel = ({ modalIsOpen, setModalIsOpen }) => {
           </CardBody>
         </Row>
         <Row>
-          <ModalButton onClick={closeModal}>
-            <MdOutlineCheck size="2em" />
-          </ModalButton>
+          <form onSubmit={handleDeleteChat}>
+            <ModalButton className="btn-secondary" type="submit">
+              <MdOutlineCheck size="2em" />
+            </ModalButton>
+          </form>
           <ModalButton className="btn-danger" onClick={closeModal}>
             <MdOutlineClose size="2em" />
           </ModalButton>

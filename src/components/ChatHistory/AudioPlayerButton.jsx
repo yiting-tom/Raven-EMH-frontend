@@ -27,6 +27,12 @@ const AudioPlayerButton = ({ base64Audio }) => {
     };
   }, []);
 
+  // auto play audio
+  useEffect(() => {
+    audioRef.current.play();
+    setIsPlaying(true);
+  }, []);
+
   return (
     <button
       onClick={togglePlayback}
